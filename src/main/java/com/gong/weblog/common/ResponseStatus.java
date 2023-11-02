@@ -1,4 +1,4 @@
-package com.gong.common;
+package com.gong.weblog.common;
 
 /**
  * 返回状态码
@@ -32,6 +32,8 @@ public class ResponseStatus {
      * 资源，服务未找到
      */
     public static final int NOT_FOUND = 404;
+
+    public static final int NOT_DATA = 406;
 
     /**
      * 不允许的http方法

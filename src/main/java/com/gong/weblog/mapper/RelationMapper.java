@@ -1,7 +1,12 @@
 package com.gong.weblog.mapper;
 
-import com.gong.weblog.entity.Relation;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.gong.weblog.dto.PageParams;
+import com.gong.weblog.entity.Relation;
+import com.gong.weblog.entity.User;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
 * @author asus
@@ -10,7 +15,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity com.gong.weblog.entity.Relation
 */
 public interface RelationMapper extends BaseMapper<Relation> {
-
+    List<User> getGoalList(@Param("followersId") Long followersId, @Param("params") PageParams params);
 }
 
 

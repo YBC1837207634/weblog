@@ -1,7 +1,8 @@
-package generator.mapper;
+package com.gong.weblog.mapper;
 
-import generator.entity.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.gong.weblog.entity.User;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
 * @author asus
@@ -9,6 +10,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @createDate 2023-10-20 10:03:17
 * @Entity generator.entity.User
 */
+@Mapper
 public interface UserMapper extends BaseMapper<User> {
 
 }

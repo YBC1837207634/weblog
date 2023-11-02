@@ -1,9 +1,10 @@
 package com.gong.weblog.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.gong.weblog.dto.PageParams;
-import com.gong.weblog.entity.Comment;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gong.weblog.dto.CommentForm;
+import com.gong.weblog.dto.CommentParams;
+import com.gong.weblog.entity.Comment;
 import com.gong.weblog.vo.CommentVo;
 
 /**
@@ -12,5 +13,8 @@ import com.gong.weblog.vo.CommentVo;
 * @createDate 2023-10-21 12:44:59
 */
 public interface CommentService extends IService<Comment> {
-    IPage<CommentVo> getCommnetVoPageByArticleId(Long articleId, PageParams params);
+    IPage<CommentVo> getCommentVoPageByArticleId(CommentParams params);
+
+    boolean pushComment(CommentForm commentForm);
+
 }

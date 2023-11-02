@@ -2,21 +2,25 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com/gong.weblog.mapper.CommentMapper">
+<mapper namespace="com.gong.weblog.mapper.CommentMapper">
 
-    <resultMap id="BaseResultMap" type="com/gong.weblog.entity.Comment">
+    <resultMap id="BaseResultMap" type="com.gong.weblog.entity.Comment">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="articleId" column="article_id" jdbcType="BIGINT"/>
             <result property="authorId" column="author_id" jdbcType="BIGINT"/>
             <result property="parentId" column="parent_id" jdbcType="BIGINT"/>
             <result property="toId" column="to_id" jdbcType="BIGINT"/>
             <result property="content" column="content" jdbcType="VARCHAR"/>
+            <result property="likeCount" column="like_count" jdbcType="INTEGER"/>
+            <result property="trampleCount" column="trample_count" jdbcType="INTEGER"/>
+            <result property="commentType" column="comment_type" jdbcType="CHAR"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,article_id,author_id,
         parent_id,to_id,content,
+        like_count,trample_count,comment_type,
         create_time
     </sql>
 </mapper>

@@ -4,9 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.util.Date;
 import lombok.Data;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * 系统访问记录
@@ -59,7 +60,7 @@ public class WeblogLogininfor implements Serializable {
     /**
      * 访问时间
      */
-    private Date loginTime;
+    private LocalDateTime loginTime;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

@@ -1,7 +1,7 @@
-package generator.service;
+package com.gong.weblog.service;
 
-import generator.entity.ArticleTag;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gong.weblog.entity.ArticleTag;
 
 /**
 * @author asus

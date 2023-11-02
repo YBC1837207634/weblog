@@ -5,55 +5,45 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 /**
  * 
- * @TableName role
+ * @TableName article_content
  */
-@TableName(value ="role")
-@Data
-public class Role implements Serializable {
+@TableName(value ="article_content")
+@Getter
+@Setter
+public class ArticleContent implements Serializable {
     /**
-     * 
+     * id
      */
     @TableId
     @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /**
-     * 角色名称
+     * 关联 文章id
      */
-    private String roleName;
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long articleId;
 
     /**
-     * 角色标识
+     * 文章内容
      */
-    private String ident;
+    private String content;
 
     /**
-     * 状态
+     * html内容
      */
-    private String status;
+    private String contentHtml;
 
-    /**
-     * 描述
-     */
-    private String description;
-
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
-
-    /**
-     * 更新时间
-     */
-    private LocalDateTime updateTime;
+    private Integer anonymous;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
+
 }

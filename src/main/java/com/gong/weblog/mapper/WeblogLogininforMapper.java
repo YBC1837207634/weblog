@@ -1,7 +1,7 @@
 package com.gong.weblog.mapper;
 
-import com.gong.weblog.entity.WeblogLogininfor;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.gong.weblog.entity.WeblogLogininfor;
 
 /**
 * @author asus

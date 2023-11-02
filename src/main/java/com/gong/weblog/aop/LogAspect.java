@@ -1,16 +1,15 @@
-package com.gong.aop;
+package com.gong.weblog.aop;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
-import com.gong.annotation.Log;
-
-import com.gong.dto.SysUserDTO;
-import com.gong.entity.manage.SysOperLog;
-import com.gong.service.manage.SysOperLogService;
-import com.gong.utils.CustomUserDetailsUtils;
-import com.gong.utils.ServletUtils;
-import com.gong.utils.ip.AddressUtils;
-import com.gong.utils.ip.IpUtils;
+import com.gong.weblog.annotation.Log;
+import com.gong.weblog.entity.User;
+import com.gong.weblog.entity.WeblogOperLog;
+import com.gong.weblog.service.WeblogOperLogService;
+import com.gong.weblog.utils.ServletUtils;
+import com.gong.weblog.utils.UserContextUtils;
+import com.gong.weblog.utils.ip.AddressUtils;
+import com.gong.weblog.utils.ip.IpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -22,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -36,11 +36,11 @@ import java.util.Objects;
 public class LogAspect {
 
     @Autowired
-    private SysOperLogService operLogService;
+    private WeblogOperLogService operLogService;
 
     private static final ThreadLocal<Long> startTime = new ThreadLocal<>();
 
-    @Before("@annotation(com.gong.annotation.Log)")
+    @Before(value = "@annotation(com.gong.weblog.annotation.Log)")
     public void beforeLog() {
         startTime.set(System.currentTimeMillis());
     }
@@ -50,7 +50,11 @@ public class LogAspect {
      */
     @AfterReturning(value = "@annotation(controllerLog)",returning = "res")
     public void successLog(JoinPoint joinPoint, Log controllerLog, Object res) {
-        setLog(joinPoint, controllerLog, res, null);
+        if (!controllerLog.onlyError()) {
+            setLog(joinPoint, controllerLog, res, null);
+        } else {
+            startTime.remove();
+        }
     }
 
     /**
@@ -64,11 +68,15 @@ public class LogAspect {
     protected void setLog(JoinPoint joinPoint, Log controllerLog, Object res, Exception ex) {
         HttpServletRequest request = ServletUtils.getRequest();
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        SysUserDTO user = CustomUserDetailsUtils.getUser();
+
         try {
-            SysOperLog operLog = new SysOperLog();
-            if (user!=null) {
+            WeblogOperLog operLog = new WeblogOperLog();
+            try{
+                User user = UserContextUtils.getUser();
                 operLog.setOperName(user.getUsername());
+            } catch (Exception e) {
+                operLog.setOperName("未知");
+                log.warn("记录日志时用户查询异常");
             }
             // 日志标题
             operLog.setTitle(controllerLog.title());
@@ -103,7 +111,7 @@ public class LogAspect {
             }
             operLog.setOperTime(LocalDateTime.now());
             operLog.setCostTime(System.currentTimeMillis()-startTime.get());
-            operLogService.saveOne(operLog);
+            operLogService.save(operLog);
         } catch (Exception e) {
             log.warn("日志记录异常");
         } finally {
@@ -114,7 +122,7 @@ public class LogAspect {
     /**
      * 设置日志参数
      */
-    protected void setOperParams(JoinPoint joinPoint, HttpServletRequest request, SysOperLog operLog) {
+    protected void setOperParams(JoinPoint joinPoint, HttpServletRequest request, WeblogOperLog operLog) {
         String params ;
         if (request.getMethod().equals(HttpMethod.POST.name()) || request.getMethod().equals(HttpMethod.PUT.name())) {
             params = getParams(joinPoint.getArgs());

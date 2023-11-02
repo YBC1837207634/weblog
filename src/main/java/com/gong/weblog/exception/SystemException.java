@@ -1,2 +1,7 @@
-package com.gong.weblog.exception;public class SystemException {
+package com.gong.weblog.exception;
+
+public class SystemException extends RuntimeException {
+    public SystemException(String message) {
+        super(message);
+    }
 }

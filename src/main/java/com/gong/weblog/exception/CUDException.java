@@ -1,4 +1,4 @@
-package com.gong.exception;
+package com.gong.weblog.exception;
 
 public class CUDException extends RuntimeException {
 

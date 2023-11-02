@@ -4,9 +4,10 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 
@@ -14,7 +15,7 @@ import lombok.Data;
  */
 @TableName(value ="files")
 @Data
-public class Files implements Serializable {
+public class FileEntity implements Serializable {
     /**
      * id
      */

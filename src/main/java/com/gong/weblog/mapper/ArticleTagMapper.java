@@ -1,7 +1,10 @@
-package generator.mapper;
+package com.gong.weblog.mapper;
 
-import generator.entity.ArticleTag;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.gong.weblog.entity.ArticleTag;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
 * @author asus
@@ -9,7 +12,10 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @createDate 2023-10-20 10:03:17
 * @Entity generator.entity.ArticleTag
 */
+@Mapper
 public interface ArticleTagMapper extends BaseMapper<ArticleTag> {
+
+    List<Long> selectHotTagIds(Integer tagCount);
 
 }
 

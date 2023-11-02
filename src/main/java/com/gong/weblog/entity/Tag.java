@@ -1,55 +1,65 @@
 package com.gong.weblog.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 
- * @TableName collect
+ * @TableName tag
  */
-@TableName(value ="collect")
+@TableName(value ="tag")
 @Data
-public class Collect implements Serializable {
+public class Tag implements Serializable {
     /**
-     * 
+     * 标签id
      */
     @TableId
     private Long id;
 
     /**
-     * 用户id
+     * 标签名称
      */
-    private Long userId;
+    private String tagName;
 
     /**
-     * 1 收藏夹 2 收藏的项目
+     * 标签描述
      */
-    private String collectType;
+    private String description;
 
     /**
-     * 收藏的项目id
+     * 排序字段
      */
-    private Long itemId;
+    private Integer sortNum;
 
     /**
-     * 项目类型 a 文章
+     * 可见
      */
-    private String itemType;
+    private Integer visible;
 
     /**
-     * 名称
+     * 创建人
      */
-    private String collectName;
+    private Long createBy;
 
     /**
-     * 收藏夹创建时间 或 项目收藏时间
+     * 更新人
+     */
+    private Long updateBy;
+
+    /**
+     * 创建时间
      */
     private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

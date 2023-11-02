@@ -1,2 +1,10 @@
-package com.gong.weblog.exception;public class UserException {
+package com.gong.weblog.exception;
+
+/**
+ * 用户异常
+ */
+public class UserException extends RuntimeException {
+    public UserException(String message) {
+        super(message);
+    }
 }

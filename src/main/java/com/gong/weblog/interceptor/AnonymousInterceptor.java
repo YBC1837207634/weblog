@@ -1,7 +1,6 @@
 package com.gong.weblog.interceptor;
 
 import com.auth0.jwt.interfaces.Claim;
-import com.gong.weblog.entity.User;
 import com.gong.weblog.service.UserService;
 import com.gong.weblog.utils.JWTUtils;
 import com.gong.weblog.utils.UserContextUtils;
@@ -40,8 +39,9 @@ public class AnonymousInterceptor implements HandlerInterceptor {
                     return true;
                 }
             }
-            // 匿名用户
+
         }
+        // 匿名用户
         UserVo userVo = new UserVo();
         UserContextUtils.setUser(userVo);
         return true;

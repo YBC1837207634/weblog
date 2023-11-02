@@ -1,12 +1,14 @@
-package com.gong.controller;
+package com.gong.weblog.controller;
 
 import cn.hutool.crypto.SecureUtil;
-import com.gong.enums.BusinessType;
-import com.gong.annotation.Log;
-import com.gong.common.ResponseStatus;
-import com.gong.entity.manage.FileEntity;
-import com.gong.vo.Result;
-import com.gong.service.manage.FileService;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.gong.weblog.annotation.Log;
+import com.gong.weblog.common.ResponseStatus;
+import com.gong.weblog.entity.FileEntity;
+import com.gong.weblog.enums.BusinessType;
+import com.gong.weblog.exception.SystemException;
+import com.gong.weblog.service.FilesService;
+import com.gong.weblog.vo.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,13 +27,13 @@ import java.util.UUID;
 public class FileController {
 
     @Autowired
-    private FileService fileService;
+    private FilesService fileService;
 
     @Value("${my-config.dir-name}")
     private String basePath;
 
-    @Value("${my-config.base-url}")
-    private String baseUrl;
+//    @Value("${my-config.base-url}")
+//    private String baseUrl;
 
     /**
      * 文件上传接口： http://localhost:8080/upload
@@ -40,7 +42,7 @@ public class FileController {
      * @throws IOException
      */
     @Log(title = "上传文件", businessType = BusinessType.INSERT)
-    @PostMapping("/upload")
+    @PostMapping
     public Result<String> upload(MultipartFile file) throws IOException {
         if (file == null || file.getSize() == 0 || !StringUtils.hasText(file.getOriginalFilename())) {
             return Result.error(ResponseStatus.BAD_REQUEST, "上传的文件不符合要求！");
@@ -56,10 +58,17 @@ public class FileController {
         // 如果没有就创建文件夹
         checkDir();
         // md5 加密
-        InputStream inputStream = file.getInputStream();
-        String md5 = SecureUtil.md5(inputStream);
+        String md5 = "";
+        try (InputStream inputStream = file.getInputStream()) {
+            md5 = SecureUtil.md5(inputStream);
+        } catch (Exception e){
+            e.printStackTrace();
+            throw new SystemException("file error");
+        }
         // 查看数据库中是否存储该文件
-        FileEntity fileEntity = fileService.getByMd5(md5);
+        LambdaQueryWrapper<FileEntity> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(FileEntity::getMd5, md5);
+        FileEntity fileEntity = fileService.getOne(queryWrapper);
         if (fileEntity == null) {
             // 生成 uuid
             UUID uuid = UUID.randomUUID();
@@ -69,11 +78,12 @@ public class FileController {
             fileEntity.setSize(file.getSize());
             fileEntity.setType(file.getContentType());
             fileEntity.setMd5(md5);
-            fileEntity.setUrl(baseUrl + "file/" + fileName);
+//            fileEntity.setUrl(baseUrl + "file/" + fileName);
+            fileEntity.setUrl("/file/" + fileName);
             // 保存到本地
             file.transferTo(new File(basePath + fileName));
             // 保存到数据库中
-            fileService.saveOne(fileEntity);
+            fileService.save(fileEntity);
         }
         // 返回名称
         return Result.success(fileEntity.getUrl());
@@ -88,7 +98,9 @@ public class FileController {
     @GetMapping("/{fileName}")
     public void download(@PathVariable("fileName") String fileName, HttpServletResponse response) throws IOException {
         log.info(fileName);
-        FileEntity byFileName = fileService.getByFileName(fileName);
+        LambdaQueryWrapper<FileEntity> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(FileEntity::getFileName, fileName);
+        FileEntity byFileName = fileService.getOne(queryWrapper);
         if (byFileName == null) {
             throw new FileNotFoundException("没有找到" + fileName);
         }
@@ -114,7 +126,7 @@ public class FileController {
             // 处理数据库中有文件，但是本地却没有
             log.warn("数据库文件信息和本地不符！");
             // 从数据库中删除
-            fileService.removeOne(byFileName.getId());
+            fileService.removeById(byFileName.getId());
             // 出现异常抛给全局异常处理器
             throw ex;
         }

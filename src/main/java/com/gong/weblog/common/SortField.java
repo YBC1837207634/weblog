@@ -1,2 +1,7 @@
-package com.gong.weblog.common;public class SortField {
+package com.gong.weblog.common;
+
+public class SortField {
+
+
+
 }

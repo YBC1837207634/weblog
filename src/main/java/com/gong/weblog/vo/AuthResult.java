@@ -1,7 +1,7 @@
-package com.gong.vo;
+package com.gong.weblog.vo;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.gong.common.ResponseStatus;
+import com.gong.weblog.common.ResponseStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthResult {
+
     private int code;
 
     private String msg;

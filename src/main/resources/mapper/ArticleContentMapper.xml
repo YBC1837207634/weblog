@@ -2,17 +2,18 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace=".mapper.ArticleContentMapper">
+<mapper namespace="com.gong.weblog.mapper.ArticleContentMapper">
 
-    <resultMap id="BaseResultMap" type=".entity.ArticleContent">
+    <resultMap id="BaseResultMap" type="com.gong.weblog.entity.ArticleContent">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="articleId" column="article_id" jdbcType="BIGINT"/>
             <result property="content" column="content" jdbcType="VARCHAR"/>
             <result property="contentHtml" column="content_html" jdbcType="VARCHAR"/>
+            <result property="anonymous" column="anonymous" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,article_id,content,
+        id,article_id,content, anonymous,
         content_html
     </sql>
 </mapper>

@@ -1,4 +1,4 @@
-package com.gong.commnet.config;
+package com.gong.weblog.config;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@MapperScan("scan.your.mapper.package")
+@MapperScan("com.gong.weblog.mapper")
 public class MybatisPlusConfig {
 
     /**

@@ -1,9 +1,9 @@
-package generator.service.impl;
+package com.gong.weblog.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import generator.entity.ArticleTag;
-import generator.service.ArticleTagService;
-import generator.mapper.ArticleTagMapper;
+import com.gong.weblog.entity.ArticleTag;
+import com.gong.weblog.mapper.ArticleTagMapper;
+import com.gong.weblog.service.ArticleTagService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 */
 @Service
 public class ArticleTagServiceImpl extends ServiceImpl<ArticleTagMapper, ArticleTag>
-    implements ArticleTagService{
+    implements ArticleTagService {
 
 }
 

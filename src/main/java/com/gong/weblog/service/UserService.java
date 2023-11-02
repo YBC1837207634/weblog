@@ -1,7 +1,9 @@
-package generator.service;
+package com.gong.weblog.service;
 
-import generator.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gong.weblog.dto.LoginForm;
+import com.gong.weblog.entity.User;
+import com.gong.weblog.vo.UserVo;
 
 /**
 * @author asus
@@ -10,4 +12,15 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface UserService extends IService<User> {
 
+    public String login(LoginForm loginForm);
+
+    public boolean register(LoginForm form);
+
+    public boolean updatePwd(LoginForm form);
+
+    UserVo getUserInfo(Long id);
+
+    UserVo getUserVo(Long id);
+
+    UserVo assembleUserVo(User user);
 }

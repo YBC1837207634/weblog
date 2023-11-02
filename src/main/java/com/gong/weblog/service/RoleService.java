@@ -1,7 +1,7 @@
 package com.gong.weblog.service;
 
-import com.gong.weblog.entity.Role;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.gong.weblog.entity.Role;
 
 /**
 * @author asus

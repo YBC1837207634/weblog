@@ -1,12 +1,12 @@
-package com.gong.aop;
+package com.gong.weblog.aop;
 
-import com.gong.dto.LoginForm;
-import com.gong.entity.manage.SysLogininfor;
-import com.gong.service.manage.SysLogininforService;
-import com.gong.utils.ServletUtils;
-import com.gong.utils.ip.AddressUtils;
-import com.gong.utils.ip.IpUtils;
-import com.gong.vo.AuthResult;
+import com.gong.weblog.dto.LoginForm;
+import com.gong.weblog.entity.WeblogLogininfor;
+import com.gong.weblog.service.WeblogLogininforService;
+import com.gong.weblog.utils.ServletUtils;
+import com.gong.weblog.utils.ip.AddressUtils;
+import com.gong.weblog.utils.ip.IpUtils;
+import com.gong.weblog.vo.AuthResult;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -25,12 +25,12 @@ import java.util.Objects;
 public class LoginAspect {
 
     @Autowired
-    SysLogininforService logininforService;
+    WeblogLogininforService logininforService;
 
     /**
      * 后置通知
      */
-    @AfterReturning(value = "execution(* com.gong.controller.user.LoginController.login(*))", returning = "result")
+    @AfterReturning(value = "execution(* com.gong.weblog.controller.LoginController.login(*))", returning = "result")
     public void loginInfo(JoinPoint joinPoint, AuthResult result) {
         setInfo(joinPoint, result, null);
     }
@@ -38,7 +38,7 @@ public class LoginAspect {
     /**
      * 后置异常通知
      */
-    @AfterThrowing(value = "execution(* com.gong.controller.user.LoginController.login(*))", throwing = "ex")
+    @AfterThrowing(value = "execution(* com.gong.weblog.controller.LoginController.login(*))", throwing = "ex")
     public void LoginError(JoinPoint joinPoint, Exception ex) {
         setInfo(joinPoint, null, ex);
     }
@@ -47,7 +47,7 @@ public class LoginAspect {
         try {
             HttpServletRequest request = ServletUtils.getRequest();
             Object[] args = joinPoint.getArgs();
-            SysLogininfor logininfor = new SysLogininfor();
+            WeblogLogininfor logininfor = new WeblogLogininfor();
             // 设置登陆用户名
             if (args.length == 1 && args[0] instanceof LoginForm loginForm) {
                 logininfor.setUserName(loginForm.getUsername());
@@ -76,7 +76,7 @@ public class LoginAspect {
             }
             // 访问时间
             logininfor.setLoginTime(LocalDateTime.now());
-            logininforService.saveOne(logininfor);
+            logininforService.save(logininfor);
         } catch (Exception e) {
             log.error("登陆日志记录时出现错误 {}", e.getMessage());
         }

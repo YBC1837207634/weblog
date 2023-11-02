@@ -1,12 +1,12 @@
-package com.gong.utils.ip;
+package com.gong.weblog.utils.ip;
 
+import cn.hutool.core.util.StrUtil;
+import com.gong.weblog.utils.ServletUtils;
+
+import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Objects;
-import javax.servlet.http.HttpServletRequest;
-
-import cn.hutool.core.util.StrUtil;
-import com.gong.utils.ServletUtils;
 
 /**
  * 获取IP方法

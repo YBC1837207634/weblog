@@ -1,12 +1,14 @@
 package com.gong.weblog.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.util.Date;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * 
@@ -19,11 +21,13 @@ public class Collect implements Serializable {
      * 
      */
     @TableId
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /**
      * 用户id
      */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long userId;
 
     /**
@@ -34,12 +38,23 @@ public class Collect implements Serializable {
     /**
      * 收藏的项目id
      */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long itemId;
 
     /**
      * 项目类型 a 文章
      */
     private String itemType;
+
+    /**
+     * 所属收藏夹id
+     */
+    public Long affiliationId;
+
+    /**
+     * 收藏夹是否公开
+     */
+    private Integer common;
 
     /**
      * 名称
@@ -49,7 +64,9 @@ public class Collect implements Serializable {
     /**
      * 收藏夹创建时间 或 项目收藏时间
      */
-    private Date createTime;
+    private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

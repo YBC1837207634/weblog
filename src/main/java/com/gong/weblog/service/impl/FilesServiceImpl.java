@@ -1,9 +1,9 @@
 package com.gong.weblog.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.gong.weblog.entity.Files;
-import com.gong.weblog.service.FilesService;
+import com.gong.weblog.entity.FileEntity;
 import com.gong.weblog.mapper.FilesMapper;
+import com.gong.weblog.service.FilesService;
 import org.springframework.stereotype.Service;
 
 /**
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 * @createDate 2023-10-27 15:17:40
 */
 @Service
-public class FilesServiceImpl extends ServiceImpl<FilesMapper, Files>
+public class FilesServiceImpl extends ServiceImpl<FilesMapper, FileEntity>
     implements FilesService{
 
 }

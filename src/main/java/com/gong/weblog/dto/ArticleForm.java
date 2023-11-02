@@ -1,14 +1,17 @@
 package com.gong.weblog.dto;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.List;
 
 @Data
-public class ArticleDTO {
+public class ArticleForm {
+
+    @Range(min = 1000000000000000000L, message = "id格式有误")
+    private Long articleId;
 
     // 概要
     @Size(max = 255, message = "不可大于255")
@@ -30,7 +33,13 @@ public class ArticleDTO {
     private String content;
 
     // 封面
-    @Pattern(regexp = "http.*", message = "封面url不合规范")
     private String img;
+
+    // 是否可以匿名查看
+    private boolean anonymous = false;
+
+    // 是否公开
+    @Range(min = 0, max=1, message = "格式错误")
+    private Integer common = 1;
 
 }
