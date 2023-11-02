@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gong.weblog.mapper.CollectMapper">
+
+    <resultMap id="BaseResultMap" type="com.gong.weblog.entity.Collect">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="userId" column="user_id" jdbcType="BIGINT"/>
+            <result property="collectType" column="collect_type" jdbcType="CHAR"/>
+            <result property="itemId" column="item_id" jdbcType="BIGINT"/>
+            <result property="itemType" column="item_type" jdbcType="CHAR"/>
+            <result property="collectName" column="collect_name" jdbcType="VARCHAR"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,collect_type,
+        item_id,item_type,collect_name,
+        create_time
+    </sql>
+</mapper>
