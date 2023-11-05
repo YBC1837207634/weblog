@@ -24,7 +24,7 @@
             u.status,u.last_login,u.deleted,
             u.create_time,u.update_time
         FROM
-            USER u
+            user u
                 JOIN relation r ON u.id = r.goal_id
         WHERE
             r.followers_id = #{followersId} AND u.`status` = '1' AND u.deleted = 0
