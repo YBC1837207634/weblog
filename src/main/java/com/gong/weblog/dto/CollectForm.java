@@ -5,6 +5,7 @@ import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -28,7 +29,10 @@ public class CollectForm {
     @Range(min = 1000000000000000000L, message = "id格式有误")
     private Long favoritesId;
 
+    @Size(max = 20, message = "单次批量删除不超过20个")
+    private List<Long> favoritesIds;
+
     @Range(min = 0, max = 1, message = "格式不正确")
-    private Integer common;
+    private Integer common = 1;
 
 }

@@ -26,6 +26,8 @@ public class Favorites implements Serializable {
 
     private UserVo user;
 
+    private Long total;
+
     private List<ArticleVo> list;
 
     private Integer common;

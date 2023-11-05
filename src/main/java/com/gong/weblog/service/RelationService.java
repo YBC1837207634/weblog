@@ -2,8 +2,8 @@ package com.gong.weblog.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.gong.weblog.dto.PageParams;
 import com.gong.weblog.dto.RelationForm;
+import com.gong.weblog.dto.RelationParams;
 import com.gong.weblog.entity.Relation;
 import com.gong.weblog.vo.UserVo;
 
@@ -15,5 +15,8 @@ import com.gong.weblog.vo.UserVo;
 public interface RelationService extends IService<Relation> {
     void link(RelationForm form);
 
-    IPage<UserVo> getGoalPage(Long followersId, PageParams params) ;
+    IPage<UserVo> getGoalPage(RelationParams params) ;
+
+    boolean queryRelation(Long goalId);
+
 }

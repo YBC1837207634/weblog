@@ -51,9 +51,9 @@ public class Article implements Serializable {
 
     private String img;
 
-    private Integer likeCount;
+    private Long likeCount;
 
-    private Integer collectCount;
+    private Long collectCount;
 
     private String status;
 

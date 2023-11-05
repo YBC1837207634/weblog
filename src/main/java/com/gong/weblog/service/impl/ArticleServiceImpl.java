@@ -11,10 +11,7 @@ import com.gong.weblog.entity.*;
 import com.gong.weblog.exception.CUDException;
 import com.gong.weblog.exception.NotHaveDataException;
 import com.gong.weblog.exception.ParamException;
-import com.gong.weblog.mapper.ArticleContentMapper;
-import com.gong.weblog.mapper.ArticleMapper;
-import com.gong.weblog.mapper.CommentMapper;
-import com.gong.weblog.mapper.TagMapper;
+import com.gong.weblog.mapper.*;
 import com.gong.weblog.service.ArticleService;
 import com.gong.weblog.service.ArticleTagService;
 import com.gong.weblog.service.ThreadService;
@@ -61,6 +58,10 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Autowired
     private CommentMapper commentMapper;
+
+    @Autowired
+    private CollectMapper collectMapper;
+
 
     /**
      * 获取文章详情，查看量加一
@@ -150,6 +151,19 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         }
     }
 
+    /**
+     * 根据字段获取排名
+     * @param field
+     * @return
+     */
+    @Override
+    public List<ArticleVo> getArticleVoByRank(String field) {
+        if (field.equals("collect_count")) {
+
+        }
+        return null;
+    }
+
     @Override
     @Transactional
     public boolean saveArticle(ArticleForm articleForm) {
@@ -165,9 +179,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         article.setBodyId(articleContent.getId());
         article.setWeight(0);
         article.setImg(articleForm.getImg());
-        article.setLikeCount(0);
+        article.setLikeCount(0L);
         article.setViewCounts(0);
-        article.setCollectCount(0);
+        article.setCollectCount(0L);
         article.setAnonymous(articleForm.isAnonymous()? 1 : 0);
         if (UserContextUtils.isAdmin()) {
             article.setStatus("1");
@@ -260,6 +274,11 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (tag1 != null) {
             articleVo.setCategory(tag1.getTagName());
         }
+        // 收藏数量
+        LambdaQueryWrapper<Collect> collectLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        collectLambdaQueryWrapper.eq(Collect::getItemId, article.getId());
+        Long count = collectMapper.selectCount(collectLambdaQueryWrapper);
+        articleVo.setCollectCount(count);
         return articleVo;
     }
 
@@ -306,6 +325,19 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (delete != delete1) {
             throw new CUDException("删除失败！");
         }
+        // 收藏夹
+        LambdaQueryWrapper<Collect> collectQuery = new LambdaQueryWrapper<>();
+        collectQuery.in(Collect::getItemId, ids);
+        collectMapper.delete(collectQuery);
+        // 删除文章所对应的评论
+        LambdaQueryWrapper<Comment> commentQuery = new LambdaQueryWrapper<>();
+        commentQuery.in(Comment::getArticleId, ids);
+        commentMapper.delete(commentQuery);
+        // 删除绑定标签
+        LambdaQueryWrapper<ArticleTag> articleTagLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        articleTagLambdaQueryWrapper.in(ArticleTag::getArticleId, ids);
+        articleTagService.remove(articleTagLambdaQueryWrapper);
+
     }
 
     private String getSortField(String field) {

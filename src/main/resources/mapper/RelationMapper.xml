@@ -28,7 +28,7 @@
                 JOIN relation r ON u.id = r.goal_id
         WHERE
             r.followers_id = #{followersId} AND u.`status` = '1' AND u.deleted = 0
-        LIMIT #{params.pageNum}, #{params.pageSize}
+        LIMIT #{pageNum}, #{pageSize}
     </select>
 
 

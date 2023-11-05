@@ -14,5 +14,9 @@ public class UserVo extends User {
 
     private Role role;
 
+    private Long followCount;
+
+    private Long fansCount;
+
     private Long articleCount;
 }

@@ -18,9 +18,9 @@ public interface ArticleService extends IService<Article> {
 
     IPage<ArticleVo> getArticleVoPage(ArticleParams params);
 
+    List<ArticleVo> getArticleVoByRank(String field);
 
     ArticleVo getArticleContent(Long id);
-
 
     boolean saveArticle(ArticleForm articleForm);
 

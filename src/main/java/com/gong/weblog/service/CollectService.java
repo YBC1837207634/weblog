@@ -6,6 +6,8 @@ import com.gong.weblog.dto.CollectParams;
 import com.gong.weblog.entity.Collect;
 import com.gong.weblog.vo.Favorites;
 
+import java.util.List;
+
 /**
 * @author asus
 * @description 针对表【collect】的数据库操作Service
@@ -16,9 +18,9 @@ public interface CollectService extends IService<Collect> {
 
     void itemModify(CollectForm form);
 
-    void FavoritesModify(CollectForm form);
+    void favoritesModify(CollectForm form);
 
-    Long addFavorites(CollectForm form);
+    void addFavorites(CollectForm form);
 
     void removeItem(CollectForm form);
 
@@ -26,4 +28,7 @@ public interface CollectService extends IService<Collect> {
 
     Favorites getFavorites(CollectParams params);
 
+    List<Favorites> getFavoritesList(CollectParams params);
+
+    List<String> queryIsCollect(CollectParams params);
 }

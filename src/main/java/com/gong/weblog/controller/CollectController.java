@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Api(tags = "收藏夹")
 @RestController
 @RequestMapping("/favorites")
@@ -26,11 +28,12 @@ public class CollectController {
      * @param form
      * @return
      */
-    @PostMapping("/creat")
+    @PostMapping("/add")
     @ApiOperation(value = "新增收藏夹", notes = "")
     @Log(title = "新建收藏夹", businessType = BusinessType.INSERT, onlyError = true)
     public Result<String> addF(@Validated @RequestBody CollectForm form) {
-        return Result.success(Long.toString(collectService.addFavorites(form)));
+        collectService.addFavorites(form);
+        return Result.success("创建成功");
     }
 
     /**
@@ -42,7 +45,7 @@ public class CollectController {
     @ApiOperation(value = "修改收藏夹", notes = "")
     @Log(title = "修该收藏夹", businessType = BusinessType.EDIT, onlyError = true)
     public Result<String> modifyF(@Validated @RequestBody CollectForm form) {
-        collectService.FavoritesModify(form);
+        collectService.favoritesModify(form);
         return Result.success("操作成功");
     }
 
@@ -72,9 +75,30 @@ public class CollectController {
         return Result.success("操作成功");
     }
 
-    @GetMapping("/list")
-    public Result<Favorites> list(CollectParams params) {
+    @GetMapping("/item/list")
+    @ApiOperation(value = "根据收藏夹id获取收藏项")
+    public Result<Favorites> itemList(CollectParams params) {
         return Result.success(collectService.getFavorites(params));
+    }
+
+    /**
+     * 获取收藏夹列表
+     * @return
+     */
+    @GetMapping("/list")
+    @ApiOperation(value = "获取收藏夹列表", notes = "")
+    public Result<List<Favorites>> getFavoritesList(CollectParams params) {
+        return Result.success(collectService.getFavoritesList(params));
+    }
+
+    /**
+     * 查询是否收藏
+     * @return
+     */
+    @GetMapping("/query")
+    @ApiOperation(value = "查询是否收藏", notes = "")
+    public Result<List<String>> query(CollectParams params) {
+        return Result.success(collectService.queryIsCollect(params));
     }
 
 }

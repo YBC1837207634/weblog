@@ -4,11 +4,14 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gong.weblog.dto.LoginForm;
 import com.gong.weblog.entity.Article;
+import com.gong.weblog.entity.Relation;
 import com.gong.weblog.entity.Role;
 import com.gong.weblog.entity.User;
 import com.gong.weblog.exception.ExistException;
+import com.gong.weblog.exception.NotHaveDataException;
 import com.gong.weblog.exception.UserException;
 import com.gong.weblog.mapper.ArticleMapper;
+import com.gong.weblog.mapper.RelationMapper;
 import com.gong.weblog.mapper.RoleMapper;
 import com.gong.weblog.mapper.UserMapper;
 import com.gong.weblog.service.UserService;
@@ -42,6 +45,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private ArticleMapper articleMapper;
+
+    @Autowired
+    private RelationMapper relationMapper;
+
     /**
      * 密码校验
      */
@@ -86,6 +93,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 user.setPassword(passwordEncoder.encode(form.getPassword()));
                 // 默认的昵称就是用户名
                 user.setNickname(form.getUsername());
+                user.setRoleId(3L);
+                user.setDeleted(0);
+                user.setStatus("1");
+
+
                 userMapper.insert(user);
                 return true;
             }
@@ -114,6 +126,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public UserVo getUserVo(Long id) {
         User user = userMapper.selectById(id);
+        if (user == null) {
+            throw new NotHaveDataException("不存在的数据");
+        }
         return assembleUserVo(user);
     }
 
@@ -130,6 +145,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             queryWrapper.eq(Article::getAuthorId, user.getId());
             userVo.setArticleCount(articleMapper.selectCount(queryWrapper));
             userVo.setRole(role);
+            // 关注数
+            LambdaQueryWrapper<Relation> q = new LambdaQueryWrapper<>();
+            q.eq(Relation::getFollowersId, user.getId());
+            userVo.setFollowCount(relationMapper.selectCount(q));
+            // 粉丝数
+            q.clear();
+            q.eq(Relation::getGoalId, user.getId());
+            userVo.setFansCount(relationMapper.selectCount(q));
             return userVo;
         }
         return new UserVo();

@@ -32,6 +32,11 @@ public class UserController {
         return Result.success(userService.getUserVo(UserContextUtils.getId()));
     }
 
+    @ApiOperation(value = "获取指定用户的基本信息", notes = "")
+    @GetMapping("/vo/{id}")
+    public Result<UserVo> getUser(@PathVariable("id") Long id) {
+        return Result.success(userService.getUserVo(id));
+    }
 
     @PutMapping
     @ApiOperation(value = "更新用户基本信息", notes = "")

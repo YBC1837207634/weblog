@@ -1,15 +1,11 @@
 package com.gong.weblog.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.gong.weblog.annotation.Log;
-import com.gong.weblog.common.ResponseStatus;
 import com.gong.weblog.dto.ArticleForm;
 import com.gong.weblog.dto.ArticleParams;
-import com.gong.weblog.entity.Article;
 import com.gong.weblog.enums.BusinessType;
 import com.gong.weblog.service.ArticleService;
-import com.gong.weblog.utils.UserContextUtils;
 import com.gong.weblog.vo.ArticleVo;
 import com.gong.weblog.vo.Result;
 import io.swagger.annotations.Api;
@@ -66,6 +62,12 @@ public class ArticleController {
     public Result<String> remove(@PathVariable("ids") List<Long> ids) {
         articleService.removeArticle(ids);
         return Result.success("删除成功！");
+    }
+
+    @ApiOperation(value = "获取收藏", notes = "")
+    @PostMapping("/rank")
+    public Result<List<ArticleVo>> getCollect(String field) {
+        return Result.success(articleService.getArticleVoByRank(field));
     }
 
 }

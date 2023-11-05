@@ -1,8 +1,6 @@
 package com.gong.weblog;
 
-import cn.hutool.core.util.IdUtil;
 import com.gong.weblog.entity.Tag;
-import com.gong.weblog.entity.User;
 import com.gong.weblog.mapper.TagMapper;
 import com.gong.weblog.mapper.UserMapper;
 import com.gong.weblog.service.UserService;

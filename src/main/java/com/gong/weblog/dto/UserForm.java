@@ -3,7 +3,6 @@ package com.gong.weblog.dto;
 import lombok.Data;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 @Data
@@ -12,7 +11,8 @@ public class UserForm {
     /**
      * 昵称
      */
-    @NotBlank(message = "昵称不可为空")
+//    @NotBlank(message = "昵称不可为空")
+    @Size(min = 1, max = 64, message = "格式错误")
     private String nickname;
 
 
