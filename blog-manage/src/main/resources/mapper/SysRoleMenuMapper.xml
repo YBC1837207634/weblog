@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gong.blog.manage.mapper.SysRoleMenuMapper">
+
+    <sql id="sysRoleMenuColumns">
+        SELECT
+        id,
+        role_id,
+        menu_id
+        from sys_role_menu
+    </sql>
+
+    <!-- 插入单个 -->
+    <insert id="insertOne" parameterType="SysRoleMenu">
+        INSERT INTO sys_role_menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="roleId != null">role_id,</if>
+            <if test="menuId != null">menu_id,</if>
+
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="roleId != null">#{roleId},</if>
+            <if test="menuId != null">#{menuId},</if>
+        </trim>
+    </insert>
+
+    <!-- 插入多个 -->
+    <insert id="insertBatch" parameterType="list">
+        INSERT INTO
+            sys_role_menu (
+            <trim suffixOverrides=",">
+                role_id,
+                menu_id
+            </trim>
+        )
+        VALUES
+            <foreach collection="sysRoleMenuList" item="item" separator="," >
+            (
+            <trim suffixOverrides=",">
+                #{item.roleId},
+                #{item.menuId}
+            </trim>
+            )
+            </foreach>
+
+    </insert>
+
+    <!--  删除  -->
+    <delete id="deleteByRoleId">
+        DELETE FROM sys_role_menu WHERE role_id = #{roleId}
+    </delete>
+
+    <!-- 批量删除 -->
+    <delete id="deleteByRoleIds">
+        DELETE FROM sys_role_menu
+        WHERE role_id IN
+        <foreach collection="roleIds" item="item" separator="," nullable="false" open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByMenuId">
+        DELETE FROM sys_role_menu
+        WHERE menu_id = #{menuId}
+
+    </delete>
+
+    <!-- 列表查询 -->
+    <select id="selectList"  resultType="SysRoleMenu">
+        <include refid="sysRoleMenuColumns"/>
+    <where>
+        <if test="id != null">
+            id = #{id}
+        </if>
+        <if test="roleId != null">
+            role_id = #{roleId}
+        </if>
+        <if test="menuId != null">
+            menu_id = #{menuId}
+        </if>
+    </where>
+    </select>
+
+    <select id="selectByRoleId" resultType="SysRoleMenu">
+        <include refid="sysRoleMenuColumns"/>
+        <where>
+            role_id = #{roleId}
+        </where>
+    </select>
+
+    <!-- 更新 -->
+    <update id="updateByRoleId" parameterType="SysRoleMenu">
+        UPDATE sys_role_menu
+        <set>
+            <if test="roleId != null">role_id = #{roleId},</if>
+            <if test="menuId != null">menu_id = #{menuId},</if>
+        </set>
+        WHERE role_id = #{roleId}
+    </update>
+
+</mapper>

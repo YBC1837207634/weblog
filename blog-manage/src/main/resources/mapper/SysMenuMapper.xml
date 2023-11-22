@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gong.blog.manage.mapper.SysMenuMapper">
+
+    <sql id="sysMenuColumns">
+        SELECT
+        id,
+        parent_id,
+        `name`,
+        menu_name,
+        icon,
+        `path`,
+        component,
+        aside,
+        menu_type,
+        `cache`,
+        `status`,
+        purview,
+        remark,
+        order_menu,
+        create_by,
+        update_by,
+        create_time,
+        update_time
+        from sys_menu
+    </sql>
+
+    <!-- 插入单个 -->
+    <insert id="insertOne" parameterType="SysMenu">
+        INSERT INTO sys_menu
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="parentId != null">parent_id,</if>
+            <if test="name != null">name,</if>
+            <if test="menuName != null">menu_name,</if>
+            <if test="icon != null">icon,</if>
+            <if test="path != null">path,</if>
+            <if test="component != null">component,</if>
+            <if test="aside != null">aside,</if>
+            <if test="menuType != null">menu_type,</if>
+            <if test="cache != null">cache,</if>
+            <if test="status != null">status,</if>
+            <if test="purview != null">purview,</if>
+            <if test="remark != null">remark,</if>
+            <if test="orderMenu != null">order_menu,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="parentId != null">#{parentId},</if>
+            <if test="name != null">#{name},</if>
+            <if test="menuName != null">#{menuName},</if>
+            <if test="icon != null">#{icon},</if>
+            <if test="path != null">#{path},</if>
+            <if test="component != null">#{component},</if>
+            <if test="aside != null">#{aside},</if>
+            <if test="menuType != null">#{menuType},</if>
+            <if test="cache != null">#{cache},</if>
+            <if test="status != null">#{status},</if>
+            <if test="purview != null">#{purview},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="orderMenu != null">#{orderMenu},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <!-- 插入多个 -->
+    <insert id="insertBatch" parameterType="list">
+        INSERT INTO
+            sys_menu (
+            <trim suffixOverrides=",">
+                parent_id,
+                name,
+                menu_name,
+                icon,
+                path,
+                component,
+                aside,
+                menu_type,
+                cache,
+                status,
+                purview,
+                remark,
+                order_menu,
+                create_by,
+                update_by,
+            </trim>
+        )
+        VALUES
+            <foreach collection="sysMenuList" item="item" separator="," >
+            (
+            <trim suffixOverrides=",">
+                #{item.parentId},
+                #{item.name},
+                #{item.menuName},
+                #{item.icon},
+                #{item.path},
+                #{item.component},
+                #{item.aside},
+                #{item.menuType},
+                #{item.cache},
+                #{item.status},
+                #{item.purview},
+                #{item.remark},
+                #{item.orderMenu},
+                #{item.createBy},
+                #{item.updateBy},
+            </trim>
+            )
+            </foreach>
+
+    </insert>
+
+    <!--  删除  -->
+    <delete id="deleteById">
+        DELETE FROM sys_menu WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除 -->
+    <delete id="deleteByIds">
+        DELETE FROM sys_menu
+        WHERE id in
+        <foreach collection="ids" item="item" separator="," nullable="false" open="(" close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <!-- 查询-->
+    <select id="selectById" resultType="SysMenu">
+        <include refid="sysMenuColumns"/>
+        WHERE id = #{id}
+    </select>
+
+    <!-- 列表查询 -->
+    <select id="selectList"  resultType="SysMenu">
+        <include refid="sysMenuColumns"/>
+    <where>
+        <if test="id != null">
+            id = #{id}
+        </if>
+        <if test="parentId != null">
+            parent_id = #{parentId}
+        </if>
+        <if test="name != null">
+            name = #{name}
+        </if>
+        <if test="menuName != null">
+            menu_name = #{menuName}
+        </if>
+        <if test="icon != null">
+            icon = #{icon}
+        </if>
+        <if test="path != null">
+            path = #{path}
+        </if>
+        <if test="component != null">
+            component = #{component}
+        </if>
+        <if test="aside != null">
+            aside = #{aside}
+        </if>
+        <if test="menuType != null">
+            menu_type = #{menuType}
+        </if>
+        <if test="cache != null">
+            cache = #{cache}
+        </if>
+        <if test="status != null">
+            status = #{status}
+        </if>
+        <if test="purview != null">
+            purview = #{purview}
+        </if>
+        <if test="remark != null">
+            remark = #{remark}
+        </if>
+        <if test="orderMenu != null">
+            order_menu = #{orderMenu}
+        </if>
+        <if test="createBy != null">
+            create_by = #{createBy}
+        </if>
+        <if test="updateBy != null">
+            update_by = #{updateBy}
+        </if>
+        <if test="createTime != null">
+            create_time = #{createTime}
+        </if>
+        <if test="updateTime != null">
+            update_time = #{updateTime}
+        </if>
+    </where>
+    </select>
+
+    <!-- 更新 -->
+    <update id="updateById" parameterType="SysMenu">
+        UPDATE sys_menu
+        <set>
+            <if test="parentId != null">parent_id = #{parentId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="menuName != null">menu_name = #{menuName},</if>
+            <if test="icon != null">icon = #{icon},</if>
+            <if test="path != null">path = #{path},</if>
+            <if test="component != null">component = #{component},</if>
+            <if test="aside != null">aside = #{aside},</if>
+            <if test="menuType != null">menu_type = #{menuType},</if>
+            <if test="cache != null">cache = #{cache},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="purview != null">purview = #{purview},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="orderMenu != null">order_menu = #{orderMenu},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 根据用户id查询对应的菜单列表 -->
+    <select id="selectMenuByUserIdAndType" resultType="com.gong.blog.manage.entity.SysMenu">
+        <include refid="sysMenuColumns"></include>
+        <where>
+            <if test="id != null">
+                id IN (
+                SELECT
+                DISTINCT rm.menu_id FROM
+                sys_user_role ur
+                INNER JOIN
+                sys_role_menu rm ON ur.role_id = rm.role_id
+                INNER JOIN
+                    sys_role sr ON rm.role_id = sr.id
+                WHERE
+                ur.user_id = #{id} AND sr.status = 1
+                )
+            </if>
+            <if test="menuTypes != null and menuTypes.length > 0">
+                AND
+                <foreach item="item" index="index" collection="menuTypes"
+                         open="menu_type in (" separator="," close=")" nullable="true">
+                    #{item}
+                </foreach>
+            </if>
+            AND `status` = 1
+        </where>
+    </select>
+
+    <!-- 根据角色id查询对应的菜单列表 -->
+    <select id="selectMenuByRoleIdType" resultType="SysMenu">
+        <include refid="sysMenuColumns"/>
+            WHERE
+            id IN (
+            SELECT DISTINCT
+                srm.menu_id
+            FROM
+                sys_role sr
+                    JOIN sys_role_menu srm ON sr.id = srm.role_id
+            WHERE
+                sr.id = #{roleId}
+#               AND sr.`status` = 1
+            )
+          AND `status` = 1
+    </select>
+</mapper>

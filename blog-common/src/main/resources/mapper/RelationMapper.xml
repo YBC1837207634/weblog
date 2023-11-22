@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gong.blog.common.mapper.RelationMapper">
+
+    <resultMap id="BaseResultMap" type="com.gong.blog.common.entity.Relation">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="followersId" column="followers_id" jdbcType="BIGINT"/>
+            <result property="goalId" column="goal_id" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,followers_id,goal_id
+    </sql>
+
+    <!--  分页查询所关注的用户列表  -->
+    <select id="getGoalList" resultType="com.gong.blog.common.entity.User">
+        SELECT
+            u.id,u.nickname,u.username,
+            u.password,u.avatar,u.email,
+            u.gender,u.phone,u.description,
+            u.role_id,u.salt,u.background,
+            u.status,u.last_login,u.deleted,
+            u.create_time,u.update_time
+        FROM
+            user u
+                JOIN relation r ON u.id = r.goal_id
+        WHERE
+            r.followers_id = #{followersId} AND u.`status` = '1' AND u.deleted = 0
+        LIMIT #{pageNum}, #{pageSize}
+    </select>
+
+
+</mapper>

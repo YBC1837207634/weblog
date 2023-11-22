@@ -1,0 +1,52 @@
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/weblog?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT%2B8
+    username: root
+    password: 123456
+  servlet:
+    multipart:
+      max-file-size: 5MB
+  redis:
+    host: localhost
+    port: 6379
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 50
+        min-idle: 100
+        max-wait: 5000ms
+    connect-timeout: 5000
+  cache:
+    type: redis
+    redis:
+      time-to-live: 100000
+
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  type-aliases-package: com.gong.blog.common.entity
+
+
+knife4j:
+  enable: true
+  openapi:
+    title: weblog
+    description: weblog
+
+server:
+  port: 8081
+
+
+
+my-config:
+  ossFilePath: images/
+  bucketName: gwenstart
+

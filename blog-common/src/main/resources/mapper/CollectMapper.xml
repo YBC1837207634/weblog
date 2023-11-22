@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gong.blog.common.mapper.CollectMapper">
+
+    <resultMap id="BaseResultMap" type="com.gong.blog.common.entity.Collect">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="userId" column="user_id" jdbcType="BIGINT"/>
+            <result property="collectType" column="collect_type" jdbcType="CHAR"/>
+            <result property="itemId" column="item_id" jdbcType="BIGINT"/>
+            <result property="itemType" column="item_type" jdbcType="CHAR"/>
+            <result property="collectName" column="collect_name" jdbcType="VARCHAR"/>
+            <result property="affiliationId" column="affiliation_id" jdbcType="BIGINT"/>
+            <result property="common" column="common" jdbcType="TINYINT"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,collect_type,
+        item_id,item_type,collect_name,affiliation_id,common,
+        create_time,update_time
+    </sql>
+
+    <!--  根据收藏夹id来查询收藏的内容  -->
+    <select id="selectArticleByAffiliationId" resultType="com.gong.blog.common.entity.Article">
+        SELECT
+            a.id,a.comment_counts,a.summary,
+            a.title,a.view_counts,a.weight,a.img,a.like_count, a.collect_count, a.`status`,
+            a.author_id,a.body_id,a.category_id, a.anonymous, a.common,
+            a.create_time,a.update_time
+        FROM
+            article a
+                JOIN collect c ON a.id = c.item_id
+        WHERE
+            c.affiliation_id = #{affiliationId} AND a.status = '1'
+        <if test="sortField != null">
+            ORDER BY
+            <choose>
+                <when test="sortField == 'create_time'">
+                    a.create_time
+                </when>
+                <when test="sortField == 'view_counts'">
+                    a.view_counts
+                </when>
+                <otherwise>
+                    a.create_time
+                </otherwise>
+            </choose>
+            <if test="sort == 'asc'">
+                ASC
+            </if>
+            <if test="sort == 'desc'">
+                DESC
+            </if>
+        </if>
+        LIMIT #{pageNum}, #{pageSize}
+    </select>
+
+
+</mapper>

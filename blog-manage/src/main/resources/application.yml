@@ -1,0 +1,58 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/weblog
+  servlet:
+    multipart:
+      max-file-size: 5MB
+
+#spring:
+#  datasource:
+#    dynamic:
+#      primary: master
+#      strict: false
+#      datasource:
+#        master:
+#          url: jdbc:mysql://localhost:3306/manage
+#          username: root
+#          password: 123456
+#          driver-class-name: com.mysql.cj.jdbc.Driver
+#        weblog:
+#          url: jdbc:mysql://localhost:3306/weblog
+#          username: root
+#          password: 123456
+#          driver-class-name: com.mysql.cj.jdbc.Driver
+#  servlet:
+#    multipart:
+#      max-file-size: 5MB
+
+#mybatis:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#    map-underscore-to-camel-case: true
+#  mapper-locations: classpath*:/mapper/**/*.xml
+#  type-aliases-package: com.gong.entity
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  type-aliases-package: com.gong.blog.common.entity, com.gong.blog.manage.entity
+
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+
+
+my-config:
+  ossFilePath: images/
+  bucketName: gwenstart
+

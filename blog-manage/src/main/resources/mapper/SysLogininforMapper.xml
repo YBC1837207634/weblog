@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gong.blog.manage.mapper.SysLogininforMapper">
+
+    <sql id="sysLogininforColumns">
+        SELECT
+        id,
+        user_name,
+        ipaddr,
+        login_location,
+        browser,
+        os,
+        status,
+        msg,
+        login_time
+        from sys_logininfor
+    </sql>
+
+    <!-- 插入单个 -->
+    <insert id="insertOne" parameterType="SysLogininfor">
+        INSERT INTO sys_logininfor
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userName != null">user_name,</if>
+            <if test="ipaddr != null">ipaddr,</if>
+            <if test="loginLocation != null">login_location,</if>
+            <if test="browser != null">browser,</if>
+            <if test="os != null">os,</if>
+            <if test="status != null">status,</if>
+            <if test="msg != null">msg,</if>
+            <if test="loginTime != null">login_time,</if>
+
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="userName != null">#{userName},</if>
+            <if test="ipaddr != null">#{ipaddr},</if>
+            <if test="loginLocation != null">#{loginLocation},</if>
+            <if test="browser != null">#{browser},</if>
+            <if test="os != null">#{os},</if>
+            <if test="status != null">#{status},</if>
+            <if test="msg != null">#{msg},</if>
+            <if test="loginTime != null">#{loginTime},</if>
+        </trim>
+    </insert>
+
+    <!-- 插入多个 -->
+    <insert id="insertBatch" parameterType="list">
+        INSERT INTO
+            sys_logininfor (
+            <trim suffixOverrides=",">
+                user_name,
+                ipaddr,
+                login_location,
+                browser,
+                os,
+                status,
+                msg,
+                login_time
+            </trim>
+        )
+        VALUES
+            <foreach collection="sysLogininforList" item="item" separator="," >
+            (
+            <trim suffixOverrides=",">
+                #{item.userName},
+                #{item.ipaddr},
+                #{item.loginLocation},
+                #{item.browser},
+                #{item.os},
+                #{item.status},
+                #{item.msg},
+                #{item.loginTime}
+            </trim>
+            )
+            </foreach>
+
+    </insert>
+    <!--  删除  -->
+    <delete id="deleteById">
+        DELETE FROM sys_logininfor WHERE id = #{id}
+    </delete>
+
+    <!-- 批量删除 -->
+    <delete id="deleteByIds">
+        DELETE FROM sys_logininfor
+        WHERE id
+        <if test="ids != null and ids.size() > 0">
+            IN
+            <foreach collection="ids" item="item" separator="," nullable="false" open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+    </delete>
+
+    <!-- 查询-->
+    <select id="selectById" resultType="SysLogininfor">
+        <include refid="sysLogininforColumns"/>
+        WHERE id = #{id}
+    </select>
+
+    <!-- 列表查询 -->
+    <select id="selectList"  resultType="SysLogininfor">
+        <include refid="sysLogininforColumns"/>
+    <where>
+        <if test="id != null">
+            id = #{id}
+        </if>
+        <if test="userName != null">
+            user_name like concat('%',#{userName},'%')
+        </if>
+        <if test="ipaddr != null">
+            ipaddr = #{ipaddr}
+        </if>
+        <if test="loginLocation != null">
+            login_location = #{loginLocation}
+        </if>
+        <if test="browser != null">
+            browser = #{browser}
+        </if>
+        <if test="os != null">
+            os = #{os}
+        </if>
+        <if test="status != null">
+            status = #{status}
+        </if>
+        <if test="msg != null">
+            msg = #{msg}
+        </if>
+        <if test="beginTime != null and endTime != null">
+            AND login_time BETWEEN DATE_FORMAT(#{beginTime}, '%Y-%m-%d') AND DATE_FORMAT(#{endTime}, '%Y-%m-%d')
+        </if>
+    </where>
+    </select>
+
+    <!-- 更新 -->
+    <update id="updateById" parameterType="SysLogininfor">
+        UPDATE sys_logininfor
+        <set>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="ipaddr != null">ipaddr = #{ipaddr},</if>
+            <if test="loginLocation != null">login_location = #{loginLocation},</if>
+            <if test="browser != null">browser = #{browser},</if>
+            <if test="os != null">os = #{os},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="msg != null">msg = #{msg},</if>
+            <if test="loginTime != null">login_time = #{loginTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+</mapper>
