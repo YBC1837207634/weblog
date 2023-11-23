@@ -37,14 +37,14 @@ public class ArticleUserLikeServiceImpl extends ServiceImpl<ArticleUserLikeMappe
      */
     @Override
     public void like(Long articleId) {
-        log.error("asdas");
         if (articleMapper.selectById(articleId) == null) {
             throw new NotHaveDataException("不存在的数据");
         }
         ArticleUserLike articleUserLike = articleUserLikeMapper.selectOne(
                 Wrappers
-                .<ArticleUserLike>lambdaQuery()
-                .eq(ArticleUserLike::getUserId, UserContextUtils.getId()));
+                    .<ArticleUserLike>lambdaQuery()
+                    .eq(ArticleUserLike::getArticleId, articleId)
+                    .eq(ArticleUserLike::getUserId, UserContextUtils.getId()));
         // 没有点赞过就添加
         if (articleUserLike == null) {
             ArticleUserLike a = new ArticleUserLike();
