@@ -1,6 +1,6 @@
 package com.gong.blog.core.controller;
 
-import com.gong.blog.common.common.ActionType;
+import com.gong.blog.common.constants.ActionType;
 import com.gong.blog.common.form.RelationForm;
 import com.gong.blog.common.service.ArticleUserLikeService;
 import com.gong.blog.common.vo.Result;

@@ -1,6 +1,8 @@
 package com.gong.blog.common.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.gong.blog.common.entity.Article;
 import com.gong.blog.common.entity.Relation;
@@ -10,24 +12,28 @@ import com.gong.blog.common.exception.ExistException;
 import com.gong.blog.common.exception.NotHaveDataException;
 import com.gong.blog.common.exception.UserException;
 import com.gong.blog.common.form.LoginForm;
+import com.gong.blog.common.form.UserForm;
 import com.gong.blog.common.mapper.ArticleMapper;
 import com.gong.blog.common.mapper.RelationMapper;
 import com.gong.blog.common.mapper.RoleMapper;
 import com.gong.blog.common.mapper.UserMapper;
-import com.gong.blog.common.service.CollectService;
 import com.gong.blog.common.service.UserService;
 import com.gong.blog.common.utils.JWTUtils;
 import com.gong.blog.common.utils.UserContextUtils;
 import com.gong.blog.common.vo.UserVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -54,11 +60,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private RelationMapper relationMapper;
 
     @Autowired
-    @Lazy
-    private CollectService collectService;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 密码校验
@@ -133,6 +138,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
+     * 获取多个用户
+     * @param uids
+     * @return
+     */
+    @Override
+    public List<UserVo> getUserByIds(List<Long> uids) {
+        HashOperations<String, String, String> hashOperations = stringRedisTemplate.opsForHash();
+        List<UserVo> userVos = new ArrayList<>();
+        for (Long uid : uids) {
+            UserVo userVoByCache = getUserVoByCache(uid, hashOperations);
+            userVos.add(userVoByCache);
+        }
+
+        return userVos;
+    }
+
+    /**
      * 返回一个更多信息的user
      * @param id
      * @return
@@ -176,6 +198,66 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         redisTemplate.delete("user:user_" + UserContextUtils.getUser().getUsername());
     }
 
+    /**
+     * 更新用户信息
+     * @param form
+     */
+    @Override
+    public void updateUserInfo(UserForm form) {
+        User user = new User();
+        BeanUtils.copyProperties(form, user);
+        user.setId(UserContextUtils.getId());
+        super.updateById(user);
+        // 信息更新后，更新redis
+        ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+        HashOperations<String, String, String> hashOperations = stringRedisTemplate.opsForHash();
+        UserVo userVo = this.getUserVo(user.getId());
+        ops.set("user:user_" + UserContextUtils.getUser().getUsername(),userVo);
+        hashOperations.put("userVo", user.getId().toString(), JSON.toJSONString(userVo));
+    }
+
+    /**
+     * 从缓存中获取用户信息
+     * @return
+     */
+    @Override
+    public UserVo getUserVoByCache(Long userId, HashOperations<String, String, String> hashOperations) {
+        String res = hashOperations.get("userVo", userId.toString());
+        if (StringUtils.hasText(res)) {
+            return JSON.parseObject(res, UserVo.class);
+        } else {
+            UserVo vo = this.getUserVo(userId);
+            if (vo != null) {
+                hashOperations.put("userVo", userId.toString(), JSON.toJSONString(vo));
+                redisTemplate.expire("userVo", 120, TimeUnit.SECONDS);
+            }
+            return vo;
+        }
+    }
+
+    @Override
+    public UserVo getUserVoByCache(Long userId) {
+        HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
+        return getUserVoByCache(userId, hashOperations);
+    }
+
+
+
+    /**
+     * 用户排名
+     * @return
+     */
+    @Override
+    @Cacheable(value = "userRank", key = "'limit'+#num", unless = "#result.empty")
+    public List<User> getUserRank(int num) {
+        List<Long> ids = relationMapper.selectList(
+                    Wrappers.<Relation>lambdaQuery()
+                            .select(Relation::getGoalId)
+                            .groupBy(Relation::getGoalId)
+                            .last("ORDER BY count(*) DESC LIMIT " + num))
+                .stream().map(Relation::getGoalId).toList();
+        return userMapper.selectList(Wrappers.<User>lambdaQuery().in(User::getId, ids));
+    }
 }
 
 

@@ -6,6 +6,8 @@ import com.gong.blog.common.entity.Tag;
 import com.gong.blog.common.params.PageParams;
 import com.gong.blog.common.vo.TagVo;
 
+import java.util.List;
+
 /**
 * @author asus
 * @description 针对表【tag】的数据库操作Service
@@ -15,6 +17,8 @@ public interface TagService extends IService<Tag> {
     IPage<Tag> getTagPage(PageParams params, boolean visible);
 
     IPage<TagVo> getCategory(PageParams params);
-
+    List<TagVo> getTagList();
     IPage<TagVo> getPage(PageParams params);
+
+    List<TagVo> getHotTags();
 }

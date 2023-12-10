@@ -1,5 +1,6 @@
 package com.gong.blog.manage.aop;
 
+import cn.hutool.core.util.StrUtil;
 import com.gong.blog.common.utils.ServletUtils;
 import com.gong.blog.common.utils.ip.AddressUtils;
 import com.gong.blog.common.utils.ip.IpUtils;
@@ -72,7 +73,7 @@ public class LoginAspect {
                 }
             } else if (Objects.nonNull(ex)) {
                 logininfor.setStatus("0");
-                logininfor.setMsg(ex.getMessage());
+                logininfor.setMsg(StrUtil.sub(ex.getMessage(),0,2000));
             }
             // 访问时间
             logininfor.setLoginTime(LocalDateTime.now());

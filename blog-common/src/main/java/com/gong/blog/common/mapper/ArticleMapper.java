@@ -1,9 +1,10 @@
 package com.gong.blog.common.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.gong.blog.common.entity.Article;
+import com.gong.blog.common.entity.Tag;
 import com.gong.blog.common.params.ArticleParams;
-import com.gong.blog.common.vo.TagVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -18,9 +19,9 @@ import java.util.List;
 @Mapper
 public interface ArticleMapper extends BaseMapper<Article> {
 
-    List<TagVo> selectArticleTagByArticleId(Long id);
+    List<Tag> selectArticleTagByArticleId(Long id);
 
-    List<Article> selectArticleByTags(@Param("params") ArticleParams params, @Param("self") boolean self);
+    IPage<Article> selectArticleByTags(IPage<Article> page, @Param("params") ArticleParams params, @Param("self") boolean self);
 
 //    Long selectArticleCountByTags(ArticleParams params);
 }

@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 public class UserVo extends User {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
     private Role role;
 

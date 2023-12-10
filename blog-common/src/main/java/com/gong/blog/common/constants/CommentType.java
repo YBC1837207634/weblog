@@ -1,4 +1,4 @@
-package com.gong.blog.common.common;
+package com.gong.blog.common.constants;
 
 public class CommentType {
 

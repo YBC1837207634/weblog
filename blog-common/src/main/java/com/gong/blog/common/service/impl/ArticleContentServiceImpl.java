@@ -12,8 +12,7 @@ import org.springframework.stereotype.Service;
 * @createDate 2023-10-20 15:51:16
 */
 @Service
-public class ArticleContentServiceImpl extends ServiceImpl<ArticleContentMapper, ArticleContent>
-    implements ArticleContentService {
+public class ArticleContentServiceImpl extends ServiceImpl<ArticleContentMapper, ArticleContent> implements ArticleContentService {
 
 }
 

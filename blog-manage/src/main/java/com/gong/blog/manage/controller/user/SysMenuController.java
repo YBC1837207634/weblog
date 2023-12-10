@@ -1,7 +1,7 @@
 package com.gong.blog.manage.controller.user;
 
 import com.gong.blog.common.annotation.Log;
-import com.gong.blog.common.common.ResponseStatus;
+import com.gong.blog.common.constants.ResponseStatus;
 import com.gong.blog.common.enums.BusinessType;
 import com.gong.blog.common.exception.CUDException;
 import com.gong.blog.common.vo.Result;

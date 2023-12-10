@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 
 @Api(tags = "标签")
 @RestController
@@ -21,21 +23,21 @@ public class TagController {
     @Autowired
     private TagService tagService;
 
-//    @ApiOperation(value = "热门标签", notes = "默认5个")
-//    @GetMapping("/hot")
-//    public Result<List<Tag>> hot (@RequestParam(defaultValue = "5") Integer count) {
-//        return Result.success(tagService.getHotTags(count));
-//    }
+    @ApiOperation(value = "热门标签")
+    @GetMapping("/hot")
+    public Result<List<TagVo>> hot () {
+        return Result.success(tagService.getHotTags());
+    }
 
     @ApiOperation(value = "用于首页展示的标签列表", notes = "")
     @GetMapping("/category")
-    public Result<IPage<TagVo>> page (PageParams params) {
+    public Result<IPage<TagVo>> categoryPage (PageParams params) {
         return Result.success(tagService.getCategory(params));
     }
 
     @ApiOperation(value = "所有标签分页", notes = "")
     @GetMapping("/list")
-    public Result<IPage<TagVo>> list(PageParams params) {
+    public Result<IPage<TagVo>> page(PageParams params) {
         return Result.success(tagService.getPage(params));
     }
 

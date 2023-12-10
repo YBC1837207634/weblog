@@ -1,6 +1,6 @@
 package com.gong.blog.common.handler;
 
-import com.gong.blog.common.common.ResponseStatus;
+import com.gong.blog.common.constants.ResponseStatus;
 import com.gong.blog.common.exception.*;
 import com.gong.blog.common.vo.Result;
 import lombok.extern.slf4j.Slf4j;

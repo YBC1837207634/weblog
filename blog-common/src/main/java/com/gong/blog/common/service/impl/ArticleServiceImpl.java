@@ -1,5 +1,6 @@
 package com.gong.blog.common.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -25,6 +26,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -32,6 +35,8 @@ import org.springframework.util.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
 * @author asus
@@ -124,16 +129,63 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     }
 
     /**
-     * 根据字段获取排名
-     * @param field
+     * 根据标签id列表获取文章
+     * @param params
+     * @return
+     */
+//    @Cacheable(value = "articlePageByTags", key = "#params.toString()", unless = "#result.records.empty")
+    public IPage<ArticleVo> getArticleVoByTags(ArticleParams params) {
+        IPage<Article> page = new Page<>(params.getPageNum(), params.getPageSize());
+        params.setSortField(getSortField(params.getSortField()));
+        params.setSort("desc");
+        IPage<Article> result = articleMapper.selectArticleByTags(page, params, false);
+        return extraInfoForEach(result, true, true);
+    }
+
+    /**
+     * 根据字段获取排名，走缓存
      * @return
      */
     @Override
-    public List<ArticleVo> getArticleVoByRank(String field) {
-        if (field.equals("collect_count")) {
-
+    public List<ArticleVo> getArticleVoRank(int num) {
+        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+        List<ArticleVo> articleList = new ArrayList<>();
+        Set<ZSetOperations.TypedTuple<String>> article = zSetOperations.reverseRangeByScoreWithScores("articleRank:limit" + num, 0, Double.MAX_VALUE, 0, num);
+        // 从缓存中查询是否有数据
+        if (!article.isEmpty()) {
+            for (ZSetOperations.TypedTuple<String> item : article) {
+                articleList.add(JSON.parseObject(item.getValue(), ArticleVo.class));
+            }
+            return articleList;
+        } else {
+            // 根据分数从大到小返回 num 个
+            Set<String> res = zSetOperations.reverseRangeByScore("article_record:like_count", 0, Double.MAX_VALUE, 0, num);
+            if (res != null && !res.isEmpty()) {
+                // 根据id获取文章
+                List<Long> ids = res.stream().map(Long::valueOf).toList();
+                for (Long id : ids) {
+                    ArticleVo vo = extraInfo(articleMapper.selectById(id), true, true);;
+                    String member = JSON.toJSONString(vo);
+                    long score = Objects.requireNonNullElse(
+                                zSetOperations.score("article_record:like_count", id.toString()),
+                                0
+                            ).longValue();
+                    // 存放到缓存中
+                    zSetOperations.add("articleRank:limit" + num, member, score);
+                    redisTemplate.expire("articleRank:limit" + num, 60, TimeUnit.SECONDS);
+                    articleList.add(vo);
+                }
+                return articleList;
+            }
         }
-        return null;
+        return articleList;
+    }
+
+    @Override
+    public List<ArticleVo> getArticleVoRank2() {
+        ValueOperations<String, String> opsForValue = redisTemplate.opsForValue();
+        String articleHotRank = opsForValue.get("articleHostRank");
+        return JSON.parseArray(articleHotRank, ArticleVo.class);
     }
 
     @Override
@@ -141,6 +193,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 //    @CacheEvict(value = "articleLimit", allEntries = true)
     public boolean saveArticle(ArticleForm articleForm) {
         HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
+        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
         // 保存文章内容
         ArticleContent articleContent = new ArticleContent();
         articleContent.setContent(articleForm.getContent());
@@ -187,12 +240,28 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         // 收藏量
         hashOperations.put("article_record:collect_count", article.getId().toString(), "0");
         // 点赞
-        hashOperations.put("article_record:like_count", article.getId().toString(), "0");
+//        hashOperations.put("article_record:like_count", article.getId().toString(), "0");
+        zSetOperations.add("article_record:like_count", article.getId().toString(), 0);
         // 评论
         hashOperations.put("article_record:comment_count", article.getId().toString(), "0");
         return insert != 0;
     }
 
+    /**
+     * 搜索文章
+     * @return
+     */
+    @Override
+    public IPage<ArticleVo> searchArticleVoPage(ArticleParams params) {
+        IPage<Article> page = new Page<>(params.getPageNum(), params.getPageSize());
+        LambdaQueryWrapper<Article> articleLambdaQueryWrapper = Wrappers.<Article>lambdaQuery()
+            .like(StringUtils.hasText(params.getKeyword()), Article::getTitle, params.getKeyword())
+            .eq(Article::getCommon, 1)
+            .orderByDesc(Article::getViewCounts)
+            .orderByDesc(Article::getCreateTime);
+        articleMapper.selectPage(page, articleLambdaQueryWrapper);
+        return extraInfoForEach(page, true, true);
+    }
 
     /**
      * 遍历文章列表给文章添加标签
@@ -223,7 +292,6 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         return articleVos;
     }
 
-
     /**
      * 给文章添加额外信息, 不包括文章体
      * @param article
@@ -232,46 +300,59 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
      * @return
      */
     public ArticleVo extraInfo(Article article, boolean tag, boolean author) {
-        HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
         ArticleVo articleVo = new ArticleVo();
         BeanUtils.copyProperties(article, articleVo);
+        HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
+        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
         // 标签
         if (tag) {
-            List<TagVo> tags = articleMapper.selectArticleTagByArticleId(article.getId());
-            if (!tags.isEmpty()) {
-                articleVo.setTags(tags);
-            }
+            articleVo.setTags(getTagsFromCache(articleVo.getId(), hashOperations));
         }
         // 添加作者信息
         if (author) {
-            UserVo userVo = userService.getUserVo(article.getAuthorId());
-            articleVo.setAuthor(userVo);
+            UserVo userVoByCache = userService.getUserVoByCache(articleVo.getAuthorId(), hashOperations);
+            articleVo.setAuthor(userVoByCache);
         }
         // 设置类别
+        setCategoryFromCache(articleVo, hashOperations);
         Tag tag1 = tagMapper.selectById(article.getCategoryId());
         if (tag1 != null) {
             articleVo.setCategory(tag1.getTagName());
         }
 
-        // 评论数量
-        String commentCount = hashOperations.get("article_record:comment_count", article.getId().toString());
-        articleVo.setCommentCounts(Integer.valueOf(Objects.requireNonNullElse(commentCount, "0")));
-
-        // 收藏数量
-        LambdaQueryWrapper<Collect> collectLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        collectLambdaQueryWrapper.eq(Collect::getItemId, article.getId());
-        Integer count = collectMapper.selectCount(collectLambdaQueryWrapper).intValue();
-        articleVo.setCollectCount(count);
-
-        // 浏览量
-        String viewCount = hashOperations.get("article_record:view_count", article.getId().toString());
-        articleVo.setViewCounts(Integer.valueOf(Objects.requireNonNullElse(viewCount, "0")));
-
-        // 点赞
-        String likeCount = hashOperations.get("article_record:like_count", article.getId().toString());
-        articleVo.setLikeCount(Integer.valueOf(Objects.requireNonNullElse(likeCount, "0")));
+        setCount(articleVo, hashOperations, zSetOperations);
 
         return articleVo;
+    }
+
+    private void setCategoryFromCache(ArticleVo articleVo, HashOperations<String, String, String> hashOperations) {
+        TagVo tagVo = getTagsFromCache(articleVo.getId(), hashOperations).get(0);
+        if (tagVo != null)
+            articleVo.setCategory(tagVo.getTagName());
+    }
+
+    /**
+     * 设置标签信息，从缓存中获取
+     */
+    private List<TagVo> getTagsFromCache(Long id, HashOperations<String, String, String> hashOperations) {
+        String res = hashOperations.get("articleExtraInfo:tag", id.toString());
+        if (StringUtils.hasText(res)) {
+            return JSON.parseArray(res, TagVo.class);
+        } else {
+            List<Tag> tags = articleMapper.selectArticleTagByArticleId(id);
+            List<TagVo> tagVoList = new ArrayList<>();
+            for (Tag tag : tags) {
+                TagVo vo = new TagVo();
+                BeanUtils.copyProperties(tag, vo);
+                tagVoList.add(vo);
+            }
+            if (!tags.isEmpty()) {
+                hashOperations.put("articleExtraInfo:tag", id.toString(), JSON.toJSONString(tagVoList));
+                redisTemplate.expire("articleExtraInfo:tag", 120, TimeUnit.SECONDS);
+                return tagVoList;
+            }
+        }
+        return new ArrayList<>();
     }
 
     /**
@@ -281,11 +362,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
      */
     @Override
     @Transactional
-//    @CacheEvict(value = "article", key = "'articleContent_' + #articleForm.articleId")
+//    @CacheEvict(value = "article", key = "'articleContent_' + #articleForm.articleIds")
     public void updateArticle(ArticleForm articleForm) {
         Article article = new Article();
         BeanUtils.copyProperties(articleForm, article);
         article.setCategoryId(articleForm.getCategory());
+        HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
         // 更新文章信息
         LambdaQueryWrapper<Article> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Article::getAuthorId, UserContextUtils.getId()); // 只可以更新当前用户的文章
@@ -315,6 +397,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (articleContentMapper.updateById(articleContent) == 0) {
             throw new CUDException("更新失败");
         }
+        hashOperations.delete("articleExtraInfo:tag", articleForm.getArticleId().toString());
     }
 
     @Override
@@ -323,6 +406,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public void removeArticle(List<Long> ids) {
         LambdaQueryWrapper<Article> queryWrapper = new LambdaQueryWrapper<>();
         HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
+        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
         queryWrapper.eq(Article::getAuthorId, UserContextUtils.getId()); // 只可删除自己的文章
         queryWrapper.in(!ids.isEmpty(), Article::getId, ids);
         int delete = articleMapper.delete(queryWrapper);
@@ -345,19 +429,69 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         LambdaQueryWrapper<ArticleTag> articleTagLambdaQueryWrapper = new LambdaQueryWrapper<>();
         articleTagLambdaQueryWrapper.in(ArticleTag::getArticleId, ids);
         articleTagService.remove(articleTagLambdaQueryWrapper);
-        List<String> strings = ids.stream().map(Object::toString).toList();
+        List<String> articleIds = ids.stream().map(Object::toString).toList();
         // 删除点赞
         LambdaQueryWrapper<ArticleUserLike> articleUserLikeLambdaQueryWrapper = new LambdaQueryWrapper<>();
         articleUserLikeLambdaQueryWrapper.in(ArticleUserLike::getArticleId, ids);
         articleUserLikeMapper.delete(articleUserLikeLambdaQueryWrapper);
         // 浏览量
-        hashOperations.delete("article_record:view_count", strings.toArray());
+        hashOperations.delete("article_record:view_count", articleIds.toArray());
         // 收藏量
-        hashOperations.delete("article_record:collect_count", strings.toArray());
+        hashOperations.delete("article_record:collect_count", articleIds.toArray());
         // 点赞
-        hashOperations.delete("article_record:like_count", strings.toArray());
+        zSetOperations.remove("article_record:like_count", articleIds.toArray());
         // 评论
-        hashOperations.delete("article_record:comment_count", strings.toArray());
+        hashOperations.delete("article_record:comment_count", articleIds.toArray());
+        // 标签缓存
+        hashOperations.delete("articleExtraInfo:tag", articleIds.toArray());
+        // 删除作者缓存
+        hashOperations.delete("userVo", UserContextUtils.getId().toString());
+        // 删除文章用户点赞关系
+//        Long userId = UserContextUtils.getId();
+//        ScanOptions.ScanOptionsBuilder scanOptionsBuilder = ScanOptions.scanOptions();
+//        for (String articleId : articleIds) {
+//            Cursor<Map.Entry<String, String>> article =
+//                    hashOperations.scan("article:relation", scanOptionsBuilder.match(articleId + "*").build());
+//            article.stream().toList().forEach(item -> {
+//                hashOperations.delete("article:relation", item.getKey() + ":" + userId);
+//            });
+//
+//        }
+
+    }
+
+    /**
+     * 批量设置文章的相关数值信息
+     */
+    @Override
+    public void setCountBatch(List<ArticleVo> list) {
+        HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
+        ZSetOperations<String, String> zSetOperations = redisTemplate.opsForZSet();
+        for (ArticleVo articleVo : list) {
+            setCount(articleVo, hashOperations, zSetOperations);
+        }
+    }
+
+    public void setCount(ArticleVo articleVo, HashOperations<String, String, String> hashOperations, ZSetOperations<String, String> zSetOperations) {
+        // 评论数量
+        String commentCount = hashOperations.get("article_record:comment_count", articleVo.getId().toString());
+        articleVo.setCommentCounts(Integer.valueOf(Objects.requireNonNullElse(commentCount, "0")));
+
+        // 收藏数量
+//        LambdaQueryWrapper<Collect> collectLambdaQueryWrapper = new LambdaQueryWrapper<>();
+//        collectLambdaQueryWrapper.eq(Collect::getItemId, articleVo.getId());
+//        Integer count = collectMapper.selectCount(collectLambdaQueryWrapper).intValue();
+//        articleVo.setCollectCount(count);
+        String collectCount = hashOperations.get("article_record:collect_count", articleVo.getId().toString());
+        articleVo.setCollectCount(Integer.valueOf(Objects.requireNonNullElse(collectCount, "0")));
+
+        // 浏览量
+        String viewCount = hashOperations.get("article_record:view_count", articleVo.getId().toString());
+        articleVo.setViewCounts(Integer.valueOf(Objects.requireNonNullElse(viewCount, "0")));
+
+        // 点赞
+        int likeCount = Objects.requireNonNullElse(zSetOperations.score("article_record:like_count", articleVo.getId().toString()), 0).intValue();
+        articleVo.setLikeCount(likeCount);
     }
 
     private String getSortField(String field) {

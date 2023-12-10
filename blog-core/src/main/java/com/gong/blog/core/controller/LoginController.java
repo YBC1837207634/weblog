@@ -1,7 +1,7 @@
 package com.gong.blog.core.controller;
 
 
-import com.gong.blog.common.common.ResponseStatus;
+import com.gong.blog.common.constants.ResponseStatus;
 import com.gong.blog.common.form.LoginForm;
 import com.gong.blog.common.service.UserService;
 import com.gong.blog.common.vo.AuthResult;

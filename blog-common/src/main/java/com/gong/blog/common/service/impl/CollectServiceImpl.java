@@ -2,7 +2,7 @@ package com.gong.blog.common.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.gong.blog.common.common.ActionType;
+import com.gong.blog.common.constants.ActionType;
 import com.gong.blog.common.entity.Article;
 import com.gong.blog.common.entity.Collect;
 import com.gong.blog.common.exception.CUDException;
@@ -19,6 +19,8 @@ import com.gong.blog.common.vo.ArticleVo;
 import com.gong.blog.common.vo.Favorites;
 import com.gong.blog.common.vo.UserVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -42,6 +44,9 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collect> impl
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     /**
      * 创建收藏夹
@@ -88,6 +93,7 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collect> impl
         if (article.getCommon().equals(0)) {
             throw new CUDException("操作有误");
         }
+        HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
         for (long id : form.getFavoritesIds()) {
             // 检查是否有该收藏夹，并且查看当前收藏夹是否是当前用户的收藏夹
             LambdaQueryWrapper<Collect> queryWrapper = new LambdaQueryWrapper<>();
@@ -107,6 +113,7 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collect> impl
             collect.setItemType("A");   // 文章类型
             collect.setAffiliationId(id);  // 所属收藏夹id
             collectMapper.insert(collect);
+            hashOperations.increment("article_record:collect_count", form.getItemId().toString(), 1L);
         }
 
     }
@@ -150,8 +157,17 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collect> impl
         } else {
             throw new CUDException("取消收藏失败！");
         }
-        if (collectMapper.delete(queryWrapper) == 0) {
+        int delete = collectMapper.delete(queryWrapper);
+        if (delete == 0) {
             throw new CUDException("取消收藏失败！");
+        }
+        HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
+        if (form.getIds() != null &&  !form.getIds().isEmpty()) {
+            for (Long id : form.getIds()) {
+                hashOperations.increment("article_record:collect_count", id.toString(), -1);
+            }
+        } else {
+            hashOperations.increment("article_record:collect_count", form.getItemId().toString(), -1);
         }
 
     }
@@ -178,7 +194,6 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collect> impl
             collect.setCommon(0);
         }
         collectMapper.update(collect, queryWrapper);
-
     }
 
     @Override
@@ -190,9 +205,19 @@ public class CollectServiceImpl extends ServiceImpl<CollectMapper, Collect> impl
         queryWrapper.eq(Collect::getCollectType, "1");  // 是否是收藏夹
         if (collectMapper.delete(queryWrapper) == 0)
             throw new CUDException("删除失败！");
+
         queryWrapper.clear();
+        queryWrapper.eq(Collect::getUserId, UserContextUtils.getId());
         queryWrapper.eq(Collect::getAffiliationId, favoritesId); // 删除收藏夹中的收藏项
+        List<Long> itemIds = collectMapper.selectList(queryWrapper).stream().map(Collect::getItemId).toList();
         collectMapper.delete(queryWrapper);
+        HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
+
+        for (Long itemId : itemIds) {
+            hashOperations.increment("article_record:collect_count", itemId.toString(), -1);
+        }
+
+
     }
 
     @Override

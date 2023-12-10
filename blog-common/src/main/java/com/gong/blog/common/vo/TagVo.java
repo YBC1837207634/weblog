@@ -35,5 +35,5 @@ public class TagVo implements Serializable {
      */
     private Integer visible;
 
-
+    private Integer articleCount;
 }

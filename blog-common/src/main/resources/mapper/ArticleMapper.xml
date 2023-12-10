@@ -28,9 +28,11 @@
     </sql>
 
     <!--    根据文章id 查询标签 -->
-    <select id="selectArticleTagByArticleId" resultType="com.gong.blog.common.vo.TagVo">
+    <select id="selectArticleTagByArticleId" resultType="com.gong.blog.common.entity.Tag">
         SELECT
-            t.id, t.tag_name, t.description, t.visible
+            t.id,t.tag_name,t.description,
+            t.sort_num,t.visible,t.article_count,t.create_by,
+            t.update_by,t.create_time,t.update_time
         FROM
             tag t
                 JOIN article_tag aet ON t.id = aet.tag_id
@@ -82,7 +84,6 @@
                 DESC
             </if>
         </if>
-        LIMIT #{params.pageNum}, #{params.pageSize}
     </select>
 
     <select id="selectArticleCountByTags" resultType="long" parameterType="com.gong.blog.common.params.ArticleParams">

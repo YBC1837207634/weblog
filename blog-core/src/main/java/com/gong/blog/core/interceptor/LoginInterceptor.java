@@ -2,7 +2,7 @@ package com.gong.blog.core.interceptor;
 
 import com.alibaba.fastjson2.JSON;
 import com.auth0.jwt.interfaces.Claim;
-import com.gong.blog.common.common.ResponseStatus;
+import com.gong.blog.common.constants.ResponseStatus;
 import com.gong.blog.common.utils.JWTUtils;
 import com.gong.blog.common.utils.UserContextUtils;
 import com.gong.blog.common.vo.AuthResult;

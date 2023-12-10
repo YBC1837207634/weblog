@@ -10,6 +10,7 @@
             <result property="description" column="description" jdbcType="VARCHAR"/>
             <result property="sortNum" column="sort_num" jdbcType="TINYINT"/>
             <result property="visible" column="visible" jdbcType="TINYINT"/>
+            <result property="articleCount" column="article_count" jdbcType="TINYINT"/>
             <result property="createBy" column="create_by" jdbcType="BIGINT"/>
             <result property="updateBy" column="update_by" jdbcType="BIGINT"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
@@ -18,7 +19,7 @@
 
     <sql id="Base_Column_List">
         id,tag_name,description,
-        sort_num,visible,create_by,
+        sort_num,visible,article_count,create_by,
         update_by,create_time,update_time
     </sql>
 </mapper>

@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.gong.blog.common.common.ActionType;
+import com.gong.blog.common.constants.ActionType;
 import com.gong.blog.common.entity.Relation;
 import com.gong.blog.common.entity.User;
 import com.gong.blog.common.exception.CUDException;

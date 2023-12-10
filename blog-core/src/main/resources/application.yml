@@ -18,10 +18,16 @@ spring:
         min-idle: 100
         max-wait: 5000ms
     connect-timeout: 5000
+    client-type: lettuce
   cache:
     type: redis
     redis:
-      time-to-live: 100000
+      time-to-live: 600000
+
+#logging:
+#  level:
+#    org.springframework.data.redis: DEBUG
+#    io.lettuce.core: DEBUG
 
 
 mybatis-plus:
@@ -32,7 +38,7 @@ mybatis-plus:
     db-config:
       logic-delete-value: 1
       logic-not-delete-value: 0
-  type-aliases-package: com.gong.blog.common.entity
+  type-aliases-package: com.gong.blog.common.entity, com.gong.blog.core.entity
 
 
 knife4j:

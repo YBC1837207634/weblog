@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.gong.blog.common.common.CommentType;
+import com.gong.blog.common.constants.CommentType;
 import com.gong.blog.common.entity.Comment;
 import com.gong.blog.common.form.CommentForm;
 import com.gong.blog.common.mapper.ArticleMapper;
@@ -145,10 +145,11 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
      * @return
      */
     private CommentVo combine(Comment comment) {
+        HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
         CommentVo commentVo = new CommentVo();
         BeanUtils.copyProperties(comment , commentVo);
         // 评论者的具体信息
-        commentVo.setCommentator(userService.getUserVo(comment.getAuthorId()));
+        commentVo.setCommentator(userService.getUserVoByCache(comment.getAuthorId(), hashOperations));
         // 获取子评论
         LambdaQueryWrapper<Comment> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.orderByAsc(Comment::getCreateTime);  // 时间正序
@@ -180,16 +181,17 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
      * @return
      */
     private SubComment getTypeSubComment(Comment comment) {
+        HashOperations<String, String, String> hashOperations = redisTemplate.opsForHash();
         SubComment c = new SubComment();
         // 设置留言内容
         c.setContent(comment.getContent());
         // 设置留言者
-        c.setCommentator(userService.getUserVo(comment.getAuthorId()));
+        c.setCommentator(userService.getUserVoByCache(comment.getAuthorId(), hashOperations));
         c.setType(CommentType.COMMENT);
         // 如果是回复类型
         if (comment.getCommentType().equals(CommentType.REPLY)) {
             // 回复目标
-            c.setTarget(userService.getUserVo(comment.getToId()));
+            c.setTarget(userService.getUserVoByCache(comment.getToId(), hashOperations));
             c.setType(CommentType.REPLY);
         }
         // 公共字段

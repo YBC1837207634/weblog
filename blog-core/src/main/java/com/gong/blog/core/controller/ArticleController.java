@@ -28,7 +28,12 @@ public class ArticleController {
     @ApiOperation(value = "查询分页列表", notes = "")
     @GetMapping("/list")
     public Result<IPage<ArticleVo>> list(@Validated ArticleParams params) {
-        return Result.success(articleService.getArticleVoPage(params));
+        if (params.getTags() == null || params.getTags().isEmpty()) {
+            return Result.success(articleService.getArticleVoPage(params));
+        } else {
+            return Result.success(articleService.getArticleVoByTags(params));
+        }
+
     }
 
     @ApiOperation(value = "文章详情", notes = "")
@@ -64,10 +69,16 @@ public class ArticleController {
         return Result.success("删除成功！");
     }
 
-    @ApiOperation(value = "获取收藏", notes = "")
-    @PostMapping("/rank")
-    public Result<List<ArticleVo>> getCollect(String field) {
-        return Result.success(articleService.getArticleVoByRank(field));
+//    @ApiOperation(value = "获取收藏", notes = "")
+//    @PostMapping("/rank")
+//    public Result<List<ArticleVo>> getCollect(String field) {
+//        return Result.success(articleService.getArticleVoByRank(field));
+//    }
+
+    @ApiOperation(value = "搜索", notes = "")
+    @GetMapping("/search")
+    public Result<IPage<ArticleVo>> search(ArticleParams params) {
+        return Result.success(articleService.searchArticleVoPage(params));
     }
 
 }

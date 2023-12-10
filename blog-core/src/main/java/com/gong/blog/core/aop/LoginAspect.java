@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Aspect
@@ -71,11 +70,15 @@ public class LoginAspect {
                     logininfor.setMsg(result.getMsg());
                 }
             } else if (Objects.nonNull(ex)) {
+                String msg = ex.getMessage();
+                if (msg.length() > 2000) {
+                    msg = ex.getMessage().substring(0, 2000);
+                }
                 logininfor.setStatus("0");
-                logininfor.setMsg(ex.getMessage());
+                logininfor.setMsg(msg);
             }
             // 访问时间
-            logininfor.setLoginTime(LocalDateTime.now());
+//            logininfor.setLoginTime();
             logininforService.save(logininfor);
         } catch (Exception e) {
             log.error("登陆日志记录时出现错误 {}", e.getMessage());

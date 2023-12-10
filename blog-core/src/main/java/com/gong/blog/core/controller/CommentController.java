@@ -2,7 +2,7 @@ package com.gong.blog.core.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.gong.blog.common.annotation.Log;
-import com.gong.blog.common.common.ResponseStatus;
+import com.gong.blog.common.constants.ResponseStatus;
 import com.gong.blog.common.enums.BusinessType;
 import com.gong.blog.common.form.CommentForm;
 import com.gong.blog.common.params.CommentParams;

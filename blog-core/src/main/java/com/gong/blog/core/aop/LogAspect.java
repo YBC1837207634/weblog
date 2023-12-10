@@ -97,7 +97,7 @@ public class LogAspect {
             // 错误信息
             if (Objects.nonNull(ex)) {
                 operLog.setStatus(0);
-                operLog.setErrorMsg(ex.getMessage().substring(0, 2000));
+                operLog.setErrorMsg(StrUtil.sub(JSON.toJSONString(res), 0, 2000));
             } else {
                 operLog.setStatus(1);
             }

@@ -25,4 +25,6 @@ public class ArticleVo extends Article {
 
     private String category;
 
+    private Long score;
+
 }

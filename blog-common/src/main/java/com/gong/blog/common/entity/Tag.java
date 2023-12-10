@@ -3,6 +3,8 @@ package com.gong.blog.common.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -19,6 +21,7 @@ public class Tag implements Serializable {
      * 标签id
      */
     @TableId
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /**
@@ -41,14 +44,18 @@ public class Tag implements Serializable {
      */
     private Integer visible;
 
+    private Integer articleCount;
+
     /**
      * 创建人
      */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long createBy;
 
     /**
      * 更新人
      */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long updateBy;
 
     /**

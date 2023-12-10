@@ -1,7 +1,7 @@
 package com.gong.blog.common.vo;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.gong.blog.common.common.ResponseStatus;
+import com.gong.blog.common.constants.ResponseStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

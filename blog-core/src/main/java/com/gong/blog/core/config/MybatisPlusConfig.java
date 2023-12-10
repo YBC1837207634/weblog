@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@MapperScan("com.gong.blog.common.mapper")
+@MapperScan({"com.gong.blog.common.mapper", "com.gong.blog.core.mapper"})
 public class MybatisPlusConfig {
 
     /**

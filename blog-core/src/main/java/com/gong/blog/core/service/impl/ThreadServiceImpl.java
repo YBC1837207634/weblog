@@ -1,10 +1,13 @@
-package com.gong.blog.common.service.impl;
+package com.gong.blog.core.service.impl;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.gong.blog.common.entity.Article;
 import com.gong.blog.common.mapper.ArticleMapper;
-import com.gong.blog.common.service.ThreadService;
+import com.gong.blog.core.entity.SessionRecord;
+import com.gong.blog.core.mapper.SessionRecordMapper;
+import com.gong.blog.core.service.ThreadService;
+import com.gong.blog.core.vo.SessionRecordVo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -14,7 +17,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-public class ThreadServiceImpl implements ThreadService  {
+public class ThreadServiceImpl implements ThreadService {
 
 
     /**
@@ -46,6 +49,20 @@ public class ThreadServiceImpl implements ThreadService  {
 
     }
 
-
+    /**
+     * 异步更新会话记录的接受消息的最新时间
+     * @param sessionRecordMapper
+     */
+    @Override
+    @Async("taskExecutor")
+    public void updateSessionTime(SessionRecordMapper sessionRecordMapper, SessionRecord sessionRecord) {
+        LambdaQueryWrapper<SessionRecord> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SessionRecord::getSenderId, sessionRecord.getSenderId());
+        wrapper.eq(SessionRecord::getReceiverId, sessionRecord.getReceiverId());
+        SessionRecord record = new SessionRecordVo();
+        record.setSessionTime(System.currentTimeMillis());
+        sessionRecordMapper.update(record, wrapper);
+//        sessionRecordMapper.updateById(sessionRecord);
+    }
 }
 

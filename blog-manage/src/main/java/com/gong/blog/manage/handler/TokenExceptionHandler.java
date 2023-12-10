@@ -1,7 +1,7 @@
 package com.gong.blog.manage.handler;
 
 import com.alibaba.fastjson2.JSON;
-import com.gong.blog.common.common.ResponseStatus;
+import com.gong.blog.common.constants.ResponseStatus;
 import com.gong.blog.common.exception.TokenException;
 import com.gong.blog.common.vo.AuthResult;
 import lombok.extern.slf4j.Slf4j;
