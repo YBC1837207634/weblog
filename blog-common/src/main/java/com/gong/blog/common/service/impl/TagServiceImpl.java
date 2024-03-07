@@ -41,7 +41,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
      * @return
      */
     @Override
-    public IPage<Tag> getTagPage(PageParams params, boolean visible) {
+    public IPage<Tag> getTagPage(PageParams params, boolean visible, Tag tag) {
         IPage<Tag> page = new Page<>(params.getPageNum(), params.getPageSize());
         LambdaQueryWrapper<Tag> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(visible,Tag::getVisible, 1);
@@ -52,19 +52,44 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
                 queryWrapper.orderByAsc(Tag::getSortNum);
             }
         }
+        if (tag != null) {
+            queryWrapper.like(StringUtils.hasText(tag.getTagName()), Tag::getTagName,  tag.getTagName());
+        }
+
         return tagMapper.selectPage(page, queryWrapper);
     }
+
+//    /**
+//     * 分页标签，根据字段名搜索标签
+//     * @param params
+//     * @param tag
+//     * @param visible
+//     * @return
+//     */
+//    public IPage<Tag> getTagPage(PageParams params, Tag tag, boolean visible){
+//        IPage<Tag> page = new Page<>(params.getPageNum(), params.getPageSize());
+//        LambdaQueryWrapper<Tag> queryWrapper = new LambdaQueryWrapper<>();
+//        queryWrapper.eq(visible,Tag::getVisible, 1);
+//        if (tag != null) {
+//
+//        }
+//    }
 
     @Override
     @Cacheable(value = "category", key = "#params.toString()")
     public IPage<TagVo> getCategory(PageParams params) {
-        IPage<Tag> tagPage = getTagPage(params, true);
+        IPage<Tag> tagPage = getTagPage(params, true,null);
         return getVo(tagPage);
     }
 
     @Cacheable(value = "Taglist", key = "#params.toString()")
     public IPage<TagVo> getPage(PageParams params) {
-        IPage<Tag> tagPage = getTagPage(params, false);
+        IPage<Tag> tagPage = getTagPage(params, false, null);
+        return getVo(tagPage);
+    }
+
+    public IPage<TagVo> getPage(PageParams params, Tag tag) {
+        IPage<Tag> tagPage = getTagPage(params, false, tag);
         return getVo(tagPage);
     }
 

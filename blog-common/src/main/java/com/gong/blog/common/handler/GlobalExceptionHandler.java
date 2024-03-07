@@ -134,5 +134,4 @@ public class GlobalExceptionHandler {
         return Result.error(ResponseStatus.BAD_REQUEST, exception.getMessage());
     }
 
-
 }

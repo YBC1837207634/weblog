@@ -1,13 +1,27 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/weblog?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT%2B8
     username: root
     password: 123456
-    url: jdbc:mysql://localhost:3306/weblog
   servlet:
     multipart:
       max-file-size: 5MB
-
+  redis:
+    host: localhost
+    port: 6379
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 50
+        min-idle: 100
+        max-wait: 5000ms
+    connect-timeout: 5000
+    client-type: lettuce
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000
 #spring:
 #  datasource:
 #    dynamic:

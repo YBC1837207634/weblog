@@ -19,7 +19,12 @@ public class UserContextUtils {
         userLocal.remove();
     }
 
-    public static Long getId() { return getUser().getId();}
+    public static Long getId() {
+        UserVo user = getUser();
+        if (user == null)
+            return 1L;
+        return user.getId();
+    }
 
     public static boolean isAdmin() { return getUser().getRole().getIdent().equals("admin");}
 

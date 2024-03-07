@@ -1,11 +1,11 @@
 package com.gong.blog.manage.controller.weblog;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.gong.blog.common.entity.Tag;
 import com.gong.blog.common.params.PageParams;
 import com.gong.blog.common.service.TagService;
 import com.gong.blog.common.vo.Result;
+import com.gong.blog.common.vo.TagVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +26,7 @@ public class TagController {
      * 新增
      */
     @PostMapping
-    Result<String> save(@RequestBody Tag tag) {
+    public Result<String> save(@RequestBody Tag tag) {
         tagService.save(tag);
         return Result.success("添加成功");
     }
@@ -35,18 +35,22 @@ public class TagController {
      * 修改
      */
     @PutMapping
-    Result<String> update(@RequestBody Tag tag) {
+    public Result<String> update(@RequestBody Tag tag) {
         tagService.updateById(tag);
         return Result.success("更新成功");
+    }
+
+    @GetMapping("/{id}")
+    public Result<Tag> getOne(@PathVariable Long id) {
+        return Result.success(tagService.getById(id));
     }
 
     /**
      * 查询
      */
     @GetMapping("/list")
-    Result<IPage<Tag>> list(PageParams params) {
-        IPage<Tag> page = new Page<>(params.getPageNum(), params.getPageSize());
-        tagService.page(page);
+    public Result<IPage<TagVo>> list(PageParams params, Tag tag) {
+        IPage<TagVo> page = tagService.getPage(params, tag);
         return Result.success(page);
     }
 
@@ -54,7 +58,7 @@ public class TagController {
      * 删除
      */
     @DeleteMapping("/{ids}")
-    Result<String> remove(@PathVariable List<Long> ids) {
+    public Result<String> remove(@PathVariable List<Long> ids) {
         tagService.removeByIds(ids);
         return Result.success("删除成功");
     }

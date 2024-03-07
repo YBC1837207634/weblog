@@ -92,9 +92,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if (article.getCommon().equals(0) && !UserContextUtils.getId().equals(article.getAuthorId())) {
             throw new ParamException("不可查看非公开内容");
         }
-        ArticleContent articleContent;
-        articleContent = articleContentMapper.selectById(article.getBodyId());
-        if (Objects.isNull(articleContent)) throw new NotHaveDataException("请求数据不存在");
+
         // 更新阅读量
 //        Article temp = new Article();
 //        temp.setId(article.getId());
@@ -102,6 +100,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 //        threadService.updateViewCount(articleMapper, temp, 2);
         hashOperations.increment("article_record:view_count", id.toString(), 1);
         ArticleVo articleVo = extraInfo(article, true, true); // 添加标签
+        ArticleContent articleContent;
+        if (UserContextUtils.getId().equals(1L) && article.getAnonymous().equals(0)) {
+            articleContent = new ArticleContent();
+            articleContent.setArticleId(id);
+            articleContent.setContent("<p>登录查看详细内容</p>");
+        } else {
+            articleContent = articleContentMapper.selectById(article.getBodyId());
+            if (Objects.isNull(articleContent)) throw new NotHaveDataException("请求数据不存在");
+        }
         articleVo.setContent(articleContent);
         return articleVo;
     }

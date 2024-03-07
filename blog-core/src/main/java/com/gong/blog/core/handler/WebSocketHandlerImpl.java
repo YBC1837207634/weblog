@@ -49,7 +49,7 @@ public class WebSocketHandlerImpl extends TextWebSocketHandler {
         // 重复连接
         if (webSocketMap.get(uid) != null) {
             WebSocketSession webSocketSession = webSocketMap.get(uid);
-            webSocketSession.sendMessage(new TextMessage("重复链接"));
+//            webSocketSession.sendMessage(new TextMessage("重复链接"));
             webSocketSession.close();
             // 将最新的连接保存
         }

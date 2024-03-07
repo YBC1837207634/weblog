@@ -29,7 +29,7 @@ public class UserController {
      */
     @Log(title = "新增论坛用户", businessType = BusinessType.INSERT)
     @PostMapping
-    Result<String> save(@RequestBody User user) {
+    public  Result<String> save(@RequestBody User user) {
         userService.save(user);
         return Result.success("添加成功");
     }
@@ -39,7 +39,7 @@ public class UserController {
      */
     @Log(title = "修改weblog用户", businessType = BusinessType.EDIT)
     @PutMapping
-    Result<String> update(@RequestBody User user) {
+    public Result<String> update(@RequestBody User user) {
         userService.updateById(user);
         return Result.success("更新成功");
     }
@@ -48,7 +48,7 @@ public class UserController {
      * 查询
      */
     @GetMapping("/list")
-    Result<IPage<User>> list(PageParams params) {
+    public Result<IPage<User>> list(PageParams params) {
         IPage<User> page = new Page<>(params.getPageNum(), params.getPageSize());
         userService.page(page);
         return Result.success(page);
@@ -58,7 +58,7 @@ public class UserController {
      * id查询
      */
     @GetMapping("/{id}")
-    Result<User> one(@PathVariable Long id) {
+    public  Result<User> one(@PathVariable Long id) {
         return Result.success(userService.getById(id));
     }
 
@@ -67,7 +67,7 @@ public class UserController {
      */
     @Log(title = "删除weblog用户", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
-    Result<String> remove(@PathVariable List<Long> ids) {
+    public Result<String> remove(@PathVariable List<Long> ids) {
         userService.removeByIds(ids);
         return Result.success("删除成功");
     }

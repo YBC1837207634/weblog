@@ -1,13 +1,9 @@
 package com.gong.blog.core.interceptor;
 
-import com.alibaba.fastjson2.JSON;
 import com.auth0.jwt.interfaces.Claim;
-import com.gong.blog.common.constants.ResponseStatus;
 import com.gong.blog.common.utils.JWTUtils;
 import com.gong.blog.common.utils.UserContextUtils;
-import com.gong.blog.common.vo.AuthResult;
 import com.gong.blog.common.vo.UserVo;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -21,16 +17,14 @@ import java.util.Map;
 import java.util.Objects;
 
 @Component
-@Slf4j
-public class LoginInterceptor implements HandlerInterceptor {
+public class AnonymousUserInterceptor implements HandlerInterceptor {
 
     @Autowired
-    private RedisTemplate<String,Object> redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String token = request.getHeader("token");
-        String message;
         if (Objects.nonNull(token) && StringUtils.hasText(token)) {
             Map<String, Claim> claimMap = JWTUtils.verifyToken(token);
             if (Objects.nonNull(claimMap)) {
@@ -42,20 +36,13 @@ public class LoginInterceptor implements HandlerInterceptor {
                     return true;
                 }
             }
-            message = "token无效";
-        } else {
-            // 没有携带token
-            message = "未携带令牌，拒绝访问";
         }
-        // 防止中文乱码
-        response.setHeader("content-type","application/json;charset=utf-8");
-        AuthResult result = AuthResult.error(ResponseStatus.UNAUTHORIZED, message);
-        response.getWriter().println(JSON.toJSONString(result));
-        return false;
+        UserVo userVo = new UserVo();
+        userVo.setId(1L);
+        UserContextUtils.setUser(userVo);
+        return true;
     }
 
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        UserContextUtils.remove();
-    }
+
+
 }

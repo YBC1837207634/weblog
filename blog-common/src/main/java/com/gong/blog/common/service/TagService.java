@@ -14,11 +14,15 @@ import java.util.List;
 * @createDate 2023-10-26 14:34:10
 */
 public interface TagService extends IService<Tag> {
-    IPage<Tag> getTagPage(PageParams params, boolean visible);
+    IPage<Tag> getTagPage(PageParams params, boolean visible, Tag tag);
 
     IPage<TagVo> getCategory(PageParams params);
+
     List<TagVo> getTagList();
+
     IPage<TagVo> getPage(PageParams params);
+
+    IPage<TagVo> getPage(PageParams params, Tag tag);
 
     List<TagVo> getHotTags();
 }
